@@ -1,5 +1,6 @@
 <?php
 include("../config/connection.php");
+include("../config/email_config.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -9,39 +10,29 @@ require '../PHPMailer/src/PHPMailer.php';
 require '../PHPMailer/src/SMTP.php';
 
 function send_password_reset($get_email, $token){
+    $reset_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+        . '://' . $_SERVER['HTTP_HOST']
+        . '/travel_india/Authentication/password_change.php?email=' . urlencode($get_email) . '&verify_token=' . $token;
+
     $mail = new PHPMailer(true);
-
     try {
-        $mail->SMTPDebug = 0;
+        $mail->SMTPDebug  = 0;
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
-        $email = $_POST['email'];
-        $mail->addAddress($email);
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
+        $mail->Host       = MAIL_HOST;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = MAIL_USERNAME;
+        $mail->Password   = MAIL_PASSWORD;
+        $mail->SMTPSecure = MAIL_SECURE;
+        $mail->Port       = MAIL_PORT;
+        $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+        $mail->addAddress($get_email);
         $mail->isHTML(true);
-        $mail->Subject = ' Reset Password Link..!';
-        $mail->Body = "<h3>hello users </h3><h3> You are receiving this email because we received a password reset request for your account.</h3><br>
-                <br/><br/>
-                <a href='http://localhost:3000/Authentication/password_change.php?email=$get_email&verify_token=$token'>Reset Password..! </a>";
-
-                // <a href='http://localhost:3000/travel_india-new-main/password_change.php?email=$get_email&verify_token=$token'>Reset Password..! </a>";
-           
-                 
-        $res = $mail->send();
-        if($res){
-        }
-        else {
-            echo "<script>alert('Your Messages not Send..!')</script>";
-        }
-    } 
-    catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        $mail->Subject = '🔒 Password Reset Request — The Real Travel';
+        $mail->Body    = getPasswordResetTemplate($reset_link);
+        $mail->AltBody = "Reset your password: $reset_link";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log('Mailer Error: ' . $mail->ErrorInfo);
     }
 }
 
@@ -60,16 +51,14 @@ if(isset($_POST['send_link'])){
 
         if($update_token_run){
             send_password_reset($get_email, $token);
-            echo "<script>alert('Email Send successfully, Please check your Email_Id..!')</script>";
-            header("Refresh:1; url=../index.php");
+            echo "<script>alert('Email Send successfully, Please check your Email_Id..!'); window.location.href='../index.php';</script>";
         }
         else {
             echo "<script>alert('Something went wrong..!')</script>";
         }
     }
     else {
-        echo "<script>alert('No Email Found..!')</script>";
-        header("Refresh:1; url=password_reset.php");
+        echo "<script>alert('No Email Found..!'); window.location.href='password_reset.php';</script>";
     }
 }
 
@@ -81,9 +70,8 @@ if(isset($_POST['update_password'])){
     if($pwd == $cpwd){
         $reset_pwd = mysqli_query($conn, "UPDATE users SET password ='$pwd' WHERE email = '$email'");
 
-        if($reset_pwd > 0){
-            echo "<script>alert('New Password Successfully Updated..!')</script>";  
-            header("Refresh:1; url=../index.php");
+        if($reset_pwd){
+            echo "<script>alert('New Password Successfully Updated..!'); window.location.href='../index.php';</script>";
         }
         else {
             echo "<script>alert('Password Not Updated..!')</script>"; 

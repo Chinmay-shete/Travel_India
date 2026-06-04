@@ -1,5 +1,5 @@
-<?php
 include("../config/connection.php");
+include("../config/email_config.php");
 error_reporting(0);
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -12,34 +12,24 @@ require '../PHPMailer/src/SMTP.php';
 function Sendemail_Verify($otp, $verify_email)
 {
     $mail = new PHPMailer(true);
-
     try {
-        $mail->SMTPDebug = 0;
+        $mail->SMTPDebug  = 0;
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
-
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
-        $get_email = $verify_email;
-        $mail->addAddress($get_email);
-
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
-
+        $mail->Host       = MAIL_HOST;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = MAIL_USERNAME;
+        $mail->Password   = MAIL_PASSWORD;
+        $mail->SMTPSecure = MAIL_SECURE;
+        $mail->Port       = MAIL_PORT;
+        $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+        $mail->addAddress($verify_email);
         $mail->isHTML(true);
-        $mail->Subject = 'Verification code for verify your email address..!';
-        $mail->Body = "<h3>Hello users </h3><h3> You need to verify your account with this tourism website!</h3>
-                      <h3> Enter this verification code for activate your account: <b>" . $otp . "</b></h3><br/><br/>";
-
-        $res = $mail->send();
-        if (!$res) {
-            echo "<script>alert('Your Messages not Send..!')</script>";
-        }
+        $mail->Subject = '🔐 Your OTP Verification Code — The Real Travel';
+        $mail->Body    = getOtpEmailTemplate('User', $otp);
+        $mail->AltBody = "Your OTP is: $otp (valid for 1 minute)";
+        $mail->send();
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        error_log('Mailer Error: ' . $mail->ErrorInfo);
     }
 }
 ?>
@@ -68,8 +58,7 @@ if (isset($_POST['submit'])) {
 
         if ($stmt->execute()) {
             Sendemail_Verify($otp, $verify_email);
-            echo "<script>alert('OTP sent Successfully..!')</script>";
-            header("Refresh:0.2; url=otp_2.php?code=" . $activation_code);
+            echo "<script>alert('OTP sent Successfully..!'); window.location.href='otp_2.php?code=" . $activation_code . "';</script>";
         } else {
             echo "Error updating record: " . $stmt->error;
         }
@@ -119,7 +108,7 @@ if (isset($_POST['submit'])) {
           </div>
           <div class="container"> 
             <form action="" method="post">
-                <?php include("config/alert.php");  ?>
+                <?php include("../config/alert.php");  ?>
                 <input type="hidden" name="otp" placeholder="Enter OTP" value="<?php echo $otp ?>" required />
                 <input type="hidden" name="token" placeholder="Enter token" value="<?php echo $activation_code ?>" required />
 

@@ -1,6 +1,8 @@
 <?php
 include("config/connection.php");
-error_reporting(0);
+include("config/email_config.php");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -12,34 +14,24 @@ require 'PHPMailer/src/SMTP.php';
 function Sendemail_Verify($fname, $email, $otp)
 {
     $mail = new PHPMailer(true);
-
     try {
-        $mail->SMTPDebug = 0;
+        $mail->SMTPDebug  = 0;
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
-
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
-        $email = $_POST['email'];
+        $mail->Host       = MAIL_HOST;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = MAIL_USERNAME;
+        $mail->Password   = MAIL_PASSWORD;
+        $mail->SMTPSecure = MAIL_SECURE;
+        $mail->Port       = MAIL_PORT;
+        $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         $mail->addAddress($email);
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
-
         $mail->isHTML(true);
-        $mail->Subject = 'Verification code for verify your email address..!';
-        $mail->Body = "<h3>hello " . $_POST['fname'] . "</h3><h3> You need to verify your account with this tourism website !</h3>
-                   <h3> Enter this verification code for activate your account : <b>" . $_POST['otp'] . "</b></h3>
-                   <br/><br/>";
-
-        $res = $mail->send();
-        if (!$res) {
-            echo "<script>alert('Your Messages not Send..!')</script>";
-        }
+        $mail->Subject = '🔐 Your OTP Verification Code — The Real Travel';
+        $mail->Body    = getOtpEmailTemplate($fname, $otp);
+        $mail->AltBody = "Hello $fname, Your OTP is: $otp (valid for 1 minute)";
+        $mail->send();
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        error_log('Mailer Error: ' . $mail->ErrorInfo);
     }
 }
 
@@ -66,15 +58,14 @@ if (isset($_POST['submit'])) {
     if (mysqli_num_rows($result) > 0) {
         echo "<script>alert('Email_Id Or Password already Exists..!')</script>";
     } else {
-        $sql = "INSERT INTO users (fname, lname, email, password, user_type ,otp, activation_code) VALUES('$fname','$lname','$email','$password','$user_type' , '$otp','$activation_code')";
+        $sql = "INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address) VALUES('$fname','$lname','$email','$password','$user_type','$otp','$activation_code','inactive','','','')";
         $qury = $conn->query($sql);
 
         if ($qury) {
             Sendemail_Verify("$fname", "$email", " $otp");
-            echo "<script>alert('Your registration succesfully..! Please Verify your Email Address..!')</script>";
-            header("Refresh:0.5; url=Authentication/otp_verify.php?code=" . $activation_code);
+            echo "<script>alert('Your registration successfully..! Please Verify your Email Address..!'); window.location.href='Authentication/otp_verify.php?code=" . $activation_code . "';</script>";
         } else {
-            $_SESSION['status'] = "Registration Failed..!";
+            echo "<script>alert('Registration Failed! Please try again.');</script>";
         }
     }
 }
@@ -198,11 +189,7 @@ if (isset($_POST['submit'])) {
 
           <div class="container">
   <?php
-  // Start the session
-  session_start();
-
-  // Include your database connection file
-  include("config/connection.php"); // Update with the correct path
+  // session already started in connection.php - do NOT call session_start() again
 
   if (isset($_POST['Login'])) {
     $email = $_POST['email'];
@@ -342,7 +329,7 @@ if (isset($_POST['submit'])) {
       <div class="container"> 
         <form action="" method="post">
           <?php include("config/alert.php"); ?>
-          <input type="hidden" name="otp" value="<?php echo "$act_str"; ?>">
+          <input type="hidden" name="otp" value="<?php echo "$otp"; ?>">
                     <input type="hidden" name="activation_code" value="<?php echo "$activation_code"; ?>">
           <label for="bravolebrity" class="required">first name</label>
           <input type="text" name="fname" placeholder="FirstName  " required />

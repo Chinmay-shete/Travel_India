@@ -27,16 +27,14 @@
             }
             else{
                 if(date('d-m-Y h:i:s') >= $timeup){
-                    echo "<script>alert('Your time is up.. try again..!')</script>";
-                    header("Refresh:1; url=../index.php");
+                    echo "<script>alert('Your time is up.. try again..!'); window.location.href='../index.php';</script>";
                 }
                 else{
                     $sqlupdate = "UPDATE users SET otp = '', status = 'active' WHERE otp = '".$otp."' AND activation_code = '".$activation_code."'";
                     $result_update = mysqli_query($conn, $sqlupdate);
 
                     if($result_update){
-                        echo "<script>alert('Congratulation..! Your account suuccesfully Activated..!')</script>";
-                        header("Refresh:1; url=../index.php");
+                        echo "<script>alert('Congratulation..! Your account successfully Activated..!'); window.location.href='../index.php';</script>";
                         // Sendemail_Verify();
                     }else{
                         echo "<script>alert('Oops..! Your account not Activated..!')</script>";

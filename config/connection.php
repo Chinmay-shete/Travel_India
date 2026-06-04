@@ -4,13 +4,14 @@
 
  
 // connect Mysql with object orianted approches
-  $servername = "localhost:3380";
+  $servername = "localhost";
+  $port = 3380;
   $username = "root";                                       
-  $password = "";
+  $password = "root";
   $dbname = "major_project";
 
   //create connection
- $conn = new mysqli($servername, $username, $password, $dbname);
+ $conn = new mysqli($servername, $username, $password, $dbname, $port);
 
  //Check Connection
  
