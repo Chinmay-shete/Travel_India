@@ -1,12 +1,18 @@
 <?php
 include("config/connection.php");
 include("config/email_config.php");
+include("config/email_queue.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 function Sendemail_Verify($fname, $email, $otp)
 {
+    global $conn;
+    $subject = '🔐 Your OTP Verification Code — The Real Travel';
+    $body    = getOtpEmailTemplate($fname, $otp);
+
+    // Try direct send first (fast path)
     $mail = new PHPMailer(true);
     try {
         $mail->SMTPDebug  = 0;
@@ -20,12 +26,15 @@ function Sendemail_Verify($fname, $email, $otp)
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = '🔐 Your OTP Verification Code — The Real Travel';
-        $mail->Body    = getOtpEmailTemplate($fname, $otp);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
         $mail->AltBody = "Hello $fname, Your OTP is: $otp (valid for 1 minute)";
         $mail->send();
+        error_log("OTP email sent directly to $email");
     } catch (Exception $e) {
-        error_log('Mailer Error: ' . $mail->ErrorInfo);
+        // Direct send failed — fall back to queue for retry by worker
+        error_log('Direct mail failed, queuing for retry: ' . $mail->ErrorInfo);
+        enqueue_email($conn, $email, $subject, $body);
     }
 }
 

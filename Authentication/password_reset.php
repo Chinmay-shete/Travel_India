@@ -1,14 +1,19 @@
 <?php
 include("../config/connection.php");
 include("../config/email_config.php");
+include("../config/email_queue.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 function send_password_reset($get_email, $token){
+    global $conn;
     $reset_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
         . '://' . $_SERVER['HTTP_HOST']
         . '/Authentication/password_change.php?email=' . urlencode($get_email) . '&verify_token=' . $token;
+
+    $subject = '🔒 Password Reset Request — The Real Travel';
+    $body    = getPasswordResetTemplate($reset_link);
 
     $mail = new PHPMailer(true);
     try {
@@ -23,12 +28,15 @@ function send_password_reset($get_email, $token){
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         $mail->addAddress($get_email);
         $mail->isHTML(true);
-        $mail->Subject = '🔒 Password Reset Request — The Real Travel';
-        $mail->Body    = getPasswordResetTemplate($reset_link);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
         $mail->AltBody = "Reset your password: $reset_link";
         $mail->send();
+        error_log("Password reset email sent directly to $get_email");
     } catch (Exception $e) {
-        error_log('Mailer Error: ' . $mail->ErrorInfo);
+        // Direct send failed — fall back to queue for retry by worker
+        error_log('Direct mail failed in reset, queuing for retry: ' . $mail->ErrorInfo);
+        enqueue_email($conn, $get_email, $subject, $body);
     }
 }
 
