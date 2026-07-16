@@ -1,4 +1,6 @@
- 
+<?php
+require_once "../config/user_auth_acces.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +14,6 @@
         <div class="page1">
             <div class="video">
             <video muted loop autoplay src="https://adamsandbutler.b-cdn.net/app/uploads/2020/08/Web-Hero-Vid-V2-No-Sound-copy.mp4"></video>
-           
             </div>
             <div class="nav">
                 <div class="nav-part1">
@@ -20,8 +21,7 @@
                 </div>
                 <h1>The Real Travel</h1>
                 <div class="nav-part2">
-               
-                    <h3><a href="../index.php">Logout</a></h3>
+                    <h3><a href="../config/logout.php">Logout</a></h3>
                 </div>
             </div>
             <div class="middle">
@@ -33,14 +33,11 @@
                 <h3><a href="add_intern_package.php">Add International Package</a></h3>
                 <h3><a href="add_packages.php">Add New Tour</a></h3>
                 <h3><a href="add_hotels.php">Add New Hotel</a></h3>
-                <h3><a href="booking_approvel/book.php">Tour Record</a></h3>
-                <h3><a href="booking_approvel/hotel_book.php">Hotel Record</a></h3>
+                <h3><a href="booking_approval/book.php">Tour Record</a></h3>
+                <h3><a href="booking_approval/hotel_book.php">Hotel Record</a></h3>
                 <h3><a href="feedbackdata.php">Feedback Data</a></h3>
-                
             </div>
         </div>
     </div>
-    
- 
 </body>
 </html>

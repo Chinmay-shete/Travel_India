@@ -4,14 +4,16 @@ include("../config/connection.php");
 
 
 
- 
- $City_Id = $_GET['cityId'];
+// echo "hello ";
+//echo $City_Id = $_GET['cityId'];
+$City_Id = $_GET['cityId'];
 
 $sql = "select * from city where City_Id = $City_Id";
 $result = $conn->query($sql);
 
 $row = mysqli_fetch_assoc($result);
 $City_Name = $row['City_Name'];
+// echo $City_Name;
  $City_Name;
 
 
@@ -19,14 +21,13 @@ $City_Name = $row['City_Name'];
 $queryfordata = mysqli_query($conn, "select * from create_intern_package where City ='$City_Name'");
  $rowdata = mysqli_fetch_array($queryfordata);
 
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Jersey</title>
+    <title>Salt Lake City</title>
     <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
     <link rel="stylesheet" href="../css/new-york.css" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
@@ -37,8 +38,8 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
     <div class="page1">
             
             <div class="nav">
-            <h3 class="closeSignUp" style="align-items: center; justify-content: center; ">
-            <a href="../other/homepage.php">
+            <h3 class="closeSignUp" style="align-items: center; justify-content: center;">
+            <a href="../homepage.php">
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="5vh" viewBox="0 0 24 24">
                             <path fill="white" fill-rule="evenodd" d="M11.708 19.273a.686.686 0 0 0-.05-.966l-6.121-5.55h14.71c.416 0 .753-.338.753-.756a.755.755 0 0 0-.752-.758H5.53l6.129-5.548a.69.69 0 0 0 .05-.969.676.676 0 0 0-.961-.05l-7.522 6.812a.69.69 0 0 0 0 1.017l7.52 6.82c.28.252.71.23.962-.052Z"></path>
                           </svg>
@@ -50,8 +51,8 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
                     <i class="ri-menu-line open"></i>
                 </div>
                
-                 <div class="header" >
-                    <h1 style="font-size: 20vw;" >New Jersey</h1>
+                 <div class="header">
+                    <h1 style="font-size: 15vw;">Salt Lake City</h1>
                  </div>
                  <div class="page1-part1">
                  <div class="nav">
@@ -124,27 +125,26 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
                  }
 
             ?>
- 
 
             <!-- <div class="booking">
                 <div class="booking1">
 
                     <div class="book-part1">
-                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66ded66a8f366e142a21090c_RHONJ_S13E11-12_Ballinlough%20Castle_1-topaz.avif" alt="">
+                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66dec8d3d29edca5cf838055_RHOA_S15E11-12_Maybe%20the%20W%20Algarve%20-%20this%20article%20references%20the%20W%20Hotel_1-topaz.avif" alt="">
                     </div>
                     <div class="book-part2">
-                        <h2> Ballinlough Castle</h2>
+                        <h2>W Algarve</h2>
                         <h4>Algarve, Portugal</h4>
                     </div>
                 </div>
                 <div class="booking2">
 
                     <div class="book-part3"> 
-                        <h5>Season 13 brought audiences new cast members. Yes, yes, there is Rachel Fuda and Danielle Cabral and Jenn Fessler. More importantly, though, there is Claire, mother of</h5>
+                        <h5>Shereé planned this trip because she needed awareness and healing, to which the other Peaches said, “Best of luck to you.” Drew gets very worked up at the first dinner about a home</h5>
                     </div>
-                    <div class="book-part4"  >
-                        <button><a href="#">Book now</a></button>
-                        <button><a href="./new-jersy/Ballinlough-Castle.php">read more</a></button> 
+                    <div class="book-part4"> 
+                        <button><a href="#">book now</a></button>
+                        <button><a href="#">read more</a></button>
                     </div>
                 </div>
             </div>
@@ -152,21 +152,21 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
                 <div class="booking1">
 
                     <div class="book-part1">
-                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66ded57add5f4cc4041c2347_RHONJ_S12E11-13_Nashville-1.avif" alt="">
+                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66dec82688cc09463fd36a64_RHOA_S15E4-5_THE%20KELLY%20BIRMINGHAM%2C%20TAPESTRY%20COLLECTION%20BY%20HILTON_1-topaz.avif" alt="">
                     </div>
                     <div class="book-part2">
-                        <h2>Nashville Pad  </h2>
+                        <h2>The Kelly Birmingham</h2>
                         <h4>Birmingham, Alabama</h4>
                     </div>
                 </div>
                 <div class="booking2">
 
                     <div class="book-part3"> 
-                        <h5>When Teresa packs her bags for a couple's trip to Nashville, she brings along her season-long beef with Margaret. Marge asked a question about Teresa’s new man, Louie, and now no one..</h5>
+                        <h5>Kenya, and Kenya Moore Hair Care, is performing the halftime show at the Magic City Classic, the country’s biggest HBCU football game. However, she is determined to keep it a secret until the....</h5>
                     </div>
-                    <div class="book-part4"  >
-                        <button><a href="#">Book now</a></button>
-                        <button><a href="./new-jersy/Nashville-Pad.php">read more</a></button> 
+                    <div class="book-part4"> 
+                        <button><a href="#">book now</a></button>
+                        <button><a href="#">read more</a></button>
                     </div>
                 </div>
             </div>
@@ -174,21 +174,21 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
                 <div class="booking1">
 
                     <div class="book-part1">
-                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66db17d423125d804532d619_RHONY_S13E3-4_Hamptons-1.avif" alt="">
+                        <img src="https://cdn.prod.website-files.com/66be216df5f5c498bc873efb/66dec698c4b873329ff1aff5_RHOA_S14E10-11_Blue%20Ridge%20Mountains-1.avif" alt="">
                     </div>
                     <div class="book-part2">
-                        <h2>Hamptons Estate</h2>
+                        <h2>Blue Ridge Chalet</h2>
                         <h4>Blue Ridge Mountains</h4>
                     </div>
                 </div>
                 <div class="booking2">
 
                     <div class="book-part3"> 
-                        <h5>It’s driving distance from their homes, but somehow the Jersey Housewives just don’t look right in the Hamptons, like a Dunkin’ Donuts in a nature preserve. However, here they are,.</h5>
+                        <h5>Marlo and Kenya hate each other. They also love each other. They were both rejected by their mothers as little girls, and they can’t stop poking at each other's psychic pain, nor can they walk....</h5>
                     </div>
-                    <div class="book-part4"  >
-                        <button><a href="#">Book now</a></button>
-                        <button><a href="./new-jersy/Hamptons-Estate.php">read more</a></button> 
+                    <div class="book-part4"> 
+                        <button><a href="#">book now</a></button>
+                        <button><a href="#">read more</a></button>
                     </div>
                 </div>
             </div> -->
@@ -235,6 +235,6 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
     <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="../js/Orange County.js"></script>
+    <script src="../js/orange-county.js"></script>
 </body>
 </html>

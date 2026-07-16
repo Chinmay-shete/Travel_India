@@ -23,7 +23,7 @@ $result = $conn->query($sql);
             </div>
             <h1>the real travel</h1>
             <div class="nav-part2">
-                <h3><a href="../other/homepage.php">Home</a></h3>
+                <h3><a href="../homepage.php">Home</a></h3>
                 <h3><a href="tourlist.php">Packages</a></h3>
                 <h3><a href="hotellist.php">Hotels</a></h3>
                 <!-- <h3><a href="#contact">Contact</a></h3> -->

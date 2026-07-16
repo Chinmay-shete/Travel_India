@@ -40,7 +40,7 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
             
             <div class="nav">
             <h3 class="closeSignUp" style="align-items: center; justify-content: center; ">
-                        <a href="../other/homepage.php"> 
+                        <a href="../homepage.php"> 
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="5vh" viewBox="0 0 24 24">
                             <path fill="white" fill-rule="evenodd" d="M11.708 19.273a.686.686 0 0 0-.05-.966l-6.121-5.55h14.71c.416 0 .753-.338.753-.756a.755.755 0 0 0-.752-.758H5.53l6.129-5.548a.69.69 0 0 0 .05-.969.676.676 0 0 0-.961-.05l-7.522 6.812a.69.69 0 0 0 0 1.017l7.52 6.82c.28.252.71.23.962-.052Z"></path>
                           </svg>
@@ -235,6 +235,6 @@ $queryfordata = mysqli_query($conn, "select * from create_intern_package where C
     <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="../js/Orange County.js"></script>
+    <script src="../js/orange-county.js"></script>
 </body>
 </html>

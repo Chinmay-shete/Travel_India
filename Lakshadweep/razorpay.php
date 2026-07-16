@@ -53,7 +53,7 @@
   // Add a click event listener to the button
   button.addEventListener('click', function() {
     // Redirect to another page
-    window.location.href = '../other/homepage.php'; // Replace this URL with your desired page URL
+    window.location.href = '../homepage.php'; // Replace this URL with your desired page URL
   });
 </script>
 

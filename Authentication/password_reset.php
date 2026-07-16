@@ -5,14 +5,10 @@ include("../config/email_config.php");
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../PHPMailer/src/Exception.php';
-require '../PHPMailer/src/PHPMailer.php';
-require '../PHPMailer/src/SMTP.php';
-
 function send_password_reset($get_email, $token){
     $reset_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
         . '://' . $_SERVER['HTTP_HOST']
-        . '/travel_india/Authentication/password_change.php?email=' . urlencode($get_email) . '&verify_token=' . $token;
+        . '/Authentication/password_change.php?email=' . urlencode($get_email) . '&verify_token=' . $token;
 
     $mail = new PHPMailer(true);
     try {
@@ -22,7 +18,7 @@ function send_password_reset($get_email, $token){
         $mail->SMTPAuth   = true;
         $mail->Username   = MAIL_USERNAME;
         $mail->Password   = MAIL_PASSWORD;
-        $mail->SMTPSecure = MAIL_SECURE;
+        $mail->SMTPSecure = (MAIL_SECURE === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = MAIL_PORT;
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         $mail->addAddress($get_email);
@@ -37,47 +33,77 @@ function send_password_reset($get_email, $token){
 }
 
 if(isset($_POST['send_link'])){
-    $email = mysqli_escape_string($conn, $_POST['email']);
-    $token = md5(rand());
+    $email = trim($_POST['email'] ?? '');
 
-    $check_email = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
-    $result = mysqli_query($conn, $check_email);
-    if(mysqli_num_rows($result) > 0){
-        $row = mysqli_fetch_array($result);
-        $get_email = $row['email'];
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>alert('Invalid email address.');</script>";
+    } else {
+        // Rate limiting check
+        $limit_check = check_rate_limit($conn, 'password_reset_request', 5, 900);
+        if (!$limit_check['allowed']) {
+            echo "<script>alert('Too many password reset requests. Locked out for " . ceil($limit_check['time_left'] / 60) . " minutes.');</script>";
+        } else {
+            // Check if email exists
+            $stmt = $conn->prepare("SELECT email FROM users WHERE email = ? LIMIT 1");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        $update_token = "UPDATE users SET activation_code = '$token' WHERE email = '$get_email' LIMIT 1";
-        $update_token_run = mysqli_query($conn, $update_token);
+            if($result->num_rows > 0){
+                reset_rate_limit($conn, 'password_reset_request');
+                
+                $row = $result->fetch_assoc();
+                $get_email = $row['email'];
+                
+                // Secure random token
+                $token = bin2hex(random_bytes(32));
 
-        if($update_token_run){
-            send_password_reset($get_email, $token);
-            echo "<script>alert('Email Send successfully, Please check your Email_Id..!'); window.location.href='../index.php';</script>";
+                // Save token in DB as activation_code
+                $update_stmt = $conn->prepare("UPDATE users SET activation_code = ? WHERE email = ? LIMIT 1");
+                $update_stmt->bind_param("ss", $token, $get_email);
+                
+                if($update_stmt->execute()){
+                    send_password_reset($get_email, $token);
+                    echo "<script>alert('Email sent successfully. Please check your Inbox.'); window.location.href='../index.php';</script>";
+                } else {
+                    echo "<script>alert('Something went wrong..!')</script>";
+                }
+                $update_stmt->close();
+            } else {
+                increment_rate_limit($conn, 'password_reset_request');
+                echo "<script>alert('No Email Found..!'); window.location.href='password_reset.php';</script>";
+            }
+            $stmt->close();
         }
-        else {
-            echo "<script>alert('Something went wrong..!')</script>";
-        }
-    }
-    else {
-        echo "<script>alert('No Email Found..!'); window.location.href='password_reset.php';</script>";
     }
 }
 
 if(isset($_POST['update_password'])){
-    $email = $_REQUEST['email'];
-    $pwd = $_REQUEST['new_password'];
-    $cpwd = $_REQUEST['cpassword'];
+    $email = trim($_POST['email'] ?? '');
+    $pwd = $_POST['new_password'] ?? '';
+    $cpwd = $_POST['cpassword'] ?? '';
 
-    if($pwd == $cpwd){
-        $reset_pwd = mysqli_query($conn, "UPDATE users SET password ='$pwd' WHERE email = '$email'");
-
-        if($reset_pwd){
-            echo "<script>alert('New Password Successfully Updated..!'); window.location.href='../index.php';</script>";
+    if (empty($email) || empty($pwd) || empty($cpwd)) {
+        echo "<script>alert('All fields are required.');</script>";
+    } elseif($pwd === $cpwd){
+        if (strlen($pwd) < 6) {
+            echo "<script>alert('Password must be at least 6 characters long.');</script>";
+        } else {
+            // Hash password securely with Bcrypt
+            $new_password_hash = password_hash($pwd, PASSWORD_BCRYPT, ['cost' => 12]);
+            
+            // Prepared statement to reset password
+            $stmt = $conn->prepare("UPDATE users SET password = ?, activation_code = '' WHERE email = ?");
+            $stmt->bind_param("ss", $new_password_hash, $email);
+            
+            if($stmt->execute()){
+                echo "<script>alert('New Password Successfully Updated..!'); window.location.href='../index.php';</script>";
+            } else {
+                echo "<script>alert('Password Not Updated..!')</script>"; 
+            }
+            $stmt->close();
         }
-        else {
-            echo "<script>alert('Password Not Updated..!')</script>"; 
-        }
-    }
-    else {
+    } else {
         echo "<script>alert('Password and Confirm Password does not match..!')</script>";
     }
 }
@@ -96,13 +122,12 @@ if(isset($_POST['update_password'])){
     <div class="signUpPage">
         <div class="nav">
           <div class="nav-part2">
-
-          <h3 class="closeSignUp" style="align-items: center; justify-content: center; display: flex;">
-          <svg id="arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="1.2vw" viewBox="0 0 24 24">
-                  <path fill="white" fill-rule="evenodd" d="M11.708 19.273a.686.686 0 0 0-.05-.966l-6.121-5.55h14.71c.416 0 .753-.338.753-.756a.755.755 0 0 0-.752-.758H5.53l6.129-5.548a.69.69 0 0 0 .05-.969.676.676 0 0 0-.961-.05l-7.522 6.812a.69.69 0 0 0 0 1.017l7.52 6.82c.28.252.71.23.962-.052Z"></path>
-              </svg>
-              <a href="../index.php">Back</a></h3>
-            
+              <h3 class="closeSignUp" style="align-items: center; justify-content: center; display: flex;">
+                  <svg id="arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="1.2vw" viewBox="0 0 24 24">
+                      <path fill="white" fill-rule="evenodd" d="M11.708 19.273a.686.686 0 0 0-.05-.966l-6.121-5.55h14.71c.416 0 .753-.338.753-.756a.755.755 0 0 0-.752-.758H5.53l6.129-5.548a.69.69 0 0 0 .05-.969.676.676 0 0 0-.961-.05l-7.522 6.812a.69.69 0 0 0 0 1.017l7.52 6.82c.28.252.71.23.962-.052Z"></path>
+                  </svg>
+                  <a href="../index.php">Back</a>
+              </h3>
           </div>
           <div class="nav-part1">
              <h3>est-2024</h3>
@@ -115,19 +140,15 @@ if(isset($_POST['update_password'])){
             <div class="signUpPage-bottom">
               <h1>Password <br> Reset</h1>
             </div>
-    
           </div>
           <div class="container"> 
             <form action="" method="POST">
-                <?php include("../config/alert.php");  ?> 
-              
-              <label for="activity" class="required">Email</label>
-              <input type="email" name="email"  placeholder="Enter your email address " required />
-       
-              <button class="submitButton" type="submit" name="send_link" value="Send Password Reset Link">Send Password Reset Link</button>
-      
+                <?php include("../config/alert.php"); ?> 
+                <?php echo csrf_field(); ?>
+                <label for="activity" class="required">Email</label>
+                <input type="email" name="email" placeholder="Enter your email address" required />
+                <button class="submitButton" type="submit" name="send_link" value="Send Password Reset Link">Send Password Reset Link</button>
             </form> 
-            
           </div> 
         </div>
       </div>

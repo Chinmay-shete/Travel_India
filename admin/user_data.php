@@ -1,20 +1,27 @@
 <?php
+require_once "../config/user_auth_acces.php";
 include("../config/connection.php");
-error_reporting(0);
 
-$sql = "select * from users";
-$result = $conn->query($sql);
-
-if (isset($_GET['ID'])) {
-    $sql = "DELETE FROM users WHERE user_Id = " . $_GET['ID'];
-    $Result = $conn->query($sql);
-    if ($Result) {
-        echo "<script>alert('Data Deleted Successfully..!')</script>";
-        header("location:user_data.php");
-    } else {
-        echo "Not Deleted..!";
+// Handle delete action securely via POST + CSRF
+if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+    $user_id = (int)($_POST['user_id'] ?? 0);
+    if ($user_id > 0) {
+        $stmt = $conn->prepare("DELETE FROM users WHERE user_Id = ?");
+        $stmt->bind_param("i", $user_id);
+        if ($stmt->execute()) {
+            echo "<script>alert('Data Deleted Successfully..!'); window.location.href='user_data.php';</script>";
+            exit;
+        } else {
+            echo "<script>alert('Not Deleted..!');</script>";
+        }
+        $stmt->close();
     }
 }
+
+// Fetch user data using explicit column selection
+$stmt = $conn->prepare("SELECT user_Id, fname, lname, email, user_type FROM users");
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -37,8 +44,6 @@ if (isset($_GET['ID'])) {
             width: 100%;
             min-height: 150vh;
             padding: 0 2vw;
-
-
         }
 
         .part1 {
@@ -47,7 +52,6 @@ if (isset($_GET['ID'])) {
             align-items: center;
             justify-content: center;
             display: flex;
-
             border: .05vw solid white;
         }
 
@@ -56,7 +60,6 @@ if (isset($_GET['ID'])) {
             width: 100%;
             border-collapse: collapse;
             padding: 2vw;
-            
         }
 
         th,
@@ -106,8 +109,6 @@ if (isset($_GET['ID'])) {
                 </div>
             </div>
             <div class="part1">
-
-
                 <table>
                     <tr>
                         <th>User ID</th>
@@ -119,23 +120,31 @@ if (isset($_GET['ID'])) {
                     </tr>
                     <?php
                     if ($result->num_rows > 0) {
-                        while ($row = mysqli_fetch_assoc($result)) {
+                        while ($row = $result->fetch_assoc()) {
                     ?>
                             <tr>
-                                <td><?php echo $row['user_Id']; ?></td>
-                                <td><?php echo $row['fname']; ?></td>
-                                <td><?php echo $row['lname']; ?></td>
-                                <td><?php echo $row['email']; ?></td>
-                                <td><?php echo $row['user_type']; ?></td>
-                                <td class="action-btn"><button><a href="edit_user.php?id=<?php echo $row['user_Id'] ?>" style="text-decoration: none; color:#08fa08;">Update</a></button></td>
-                                <td class="action-btn"><button><a href="user_data.php?ID=<?php echo $row['user_Id'] ?>" style="text-decoration: none; color:red;">Delete</a></button></td>
+                                <td><?php echo h($row['user_Id']); ?></td>
+                                <td><?php echo h($row['fname']); ?></td>
+                                <td><?php echo h($row['lname']); ?></td>
+                                <td><?php echo h($row['email']); ?></td>
+                                <td><?php echo h($row['user_type']); ?></td>
+                                <td class="action-btn">
+                                    <button><a href="edit_user.php?id=<?php echo h($row['user_Id']); ?>" style="text-decoration: none; color:#08fa08;">Update</a></button>
+                                </td>
+                                <td class="action-btn">
+                                    <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');" style="display:inline;">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="user_id" value="<?php echo h($row['user_Id']); ?>">
+                                        <button type="submit" style="text-decoration: none; color:red; cursor:pointer;">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                     <?php
                         }
                     }
                     ?>
                 </table>
-
             </div>
         </div>
     </div>
@@ -149,3 +158,6 @@ if (isset($_GET['ID'])) {
 </body>
 
 </html>
+<?php
+$stmt->close();
+?>

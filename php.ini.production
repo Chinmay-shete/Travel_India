@@ -1,0 +1,36 @@
+; ─── RECOMMENDED PHP.INI SETTINGS FOR PRODUCTION ───
+
+; Hide PHP version headers
+expose_php = Off
+
+; Disable error display to prevent information disclosure
+display_errors = Off
+display_startup_errors = Off
+
+; Enable error logging
+log_errors = On
+error_log = /var/log/php/error.log
+
+; Maximum execution time and memory limits
+max_execution_time = 30
+memory_limit = 256M
+
+; Secure cookie/session defaults
+session.cookie_httponly = 1
+session.cookie_secure = 1
+session.cookie_samesite = Strict
+session.use_strict_mode = 1
+session.gc_maxlifetime = 1440
+
+; ─── REDIS SESSION STORAGE FOR HORIZONTAL SCALING ───
+; Uncomment and configure these once a Redis server is provisioned
+; session.save_handler = redis
+; session.save_path = "tcp://127.0.0.1:6379?auth=your_redis_password_here"
+
+; ─── OPcache Performance Optimization ───
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.max_accelerated_files = 4000
+opcache.validate_timestamps = 0
+opcache.interned_strings_buffer = 8
+opcache.fast_shutdown = 1

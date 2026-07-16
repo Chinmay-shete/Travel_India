@@ -60,7 +60,7 @@ if (isset($_GET['Id'])) {
                 <div class="menu-section">
                     <div class="menu">
                         <h1 class="animate-text" data-index="1">the real Travel</h1>
-                        <h1 class="animate-text" data-index="2"><a href="/homepage.php">home</a></h1>
+                        <h1 class="animate-text" data-index="2"><a href="../homepage.php">home</a></h1>
                         <h1 class="animate-text" data-index="3"><a href="../Lakshadweep/tourlist.php">TourList</a></h1>
                         <h1 class="animate-text" data-index="4"><a href="book_tour.php">Packages</a></h1>
                         <h1 class="animate-text" data-index="5">get in touch</h1>

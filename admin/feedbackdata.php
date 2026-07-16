@@ -1,19 +1,27 @@
 <?php
+require_once "../config/user_auth_acces.php";
 include("../config/connection.php");
-error_reporting(0);
 
-$sql = "SELECT * FROM feedback";
-$result = $conn->query($sql);
-
-if (isset($_GET['IDe'])) {
-    $sql = "DELETE FROM feedback WHERE msg_Id = " . $_GET['IDe'];
-    $Result = $conn->query($sql);
-    if ($Result) {
-        header("location:feedbackdata.php");
-    } else {
-        echo "Not Deleted..!";
+// Handle DELETE securely via POST + CSRF
+if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+    $msg_id = (int)($_POST['msg_id'] ?? 0);
+    if ($msg_id > 0) {
+        $stmt = $conn->prepare("DELETE FROM feedback WHERE msg_Id = ?");
+        $stmt->bind_param("i", $msg_id);
+        if ($stmt->execute()) {
+            echo "<script>alert('Feedback Deleted Successfully..!'); window.location.href='feedbackdata.php';</script>";
+            exit;
+        } else {
+            echo "<script>alert('Not Deleted..!');</script>";
+        }
+        $stmt->close();
     }
 }
+
+// Fetch feedback securely
+$stmt = $conn->prepare("SELECT name, email, msg_Id, massage FROM feedback");
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -23,11 +31,9 @@ if (isset($_GET['IDe'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback Data</title>
-    <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
     <link rel="stylesheet" href="../css/pwd_update.css">
     <style>
-       
-
         * {
             font-family: aeonik;
         }
@@ -145,7 +151,6 @@ if (isset($_GET['IDe'])) {
         </div>
 
         <div class="part1">
-            <?php include("include.php"); ?>
             <table>
                 <tr>
                     <th colspan="2">User Details</th>
@@ -160,14 +165,21 @@ if (isset($_GET['IDe'])) {
                 </tr>
                 <?php
                 if ($result->num_rows > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
+                    while ($row = $result->fetch_assoc()) {
                 ?>
                         <tr>
-                            <td><?php echo $row['name']; ?></td>
-                            <td><?php echo $row['email']; ?></td>
-                            <td><?php echo $row['msg_Id']; ?></td>
-                            <td id="msg"><?php echo $row['massage']; ?></td>
-                            <td><button><a href="feedbackdata.php?IDe=<?php echo $row['msg_Id'] ?>" style="text-decoration: none; color:red;">Delete</a></button></td>
+                            <td><?php echo h($row['name']); ?></td>
+                            <td><?php echo h($row['email']); ?></td>
+                            <td><?php echo h($row['msg_Id']); ?></td>
+                            <td id="msg"><?php echo h($row['massage']); ?></td>
+                            <td>
+                                <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this message?');" style="display:inline;">
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="msg_id" value="<?php echo h($row['msg_Id']); ?>">
+                                    <button type="submit" style="text-decoration: none; color:red; cursor:pointer;">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                 <?php
                     }
@@ -187,3 +199,6 @@ if (isset($_GET['IDe'])) {
 </body>
 
 </html>
+<?php
+$stmt->close();
+?>

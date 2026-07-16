@@ -1,4 +1,25 @@
-temp.html
-temp1.php
-temp2.php
-temp4.php
+# Environment — NEVER commit .env (contains real secrets)
+.env
+
+# Composer
+/vendor/
+composer.lock
+
+# Uploaded files (served via proxy, not from webroot)
+/uploads/*
+!/uploads/.gitkeep
+!/uploads/serve.php
+!/uploads/README.md
+
+# PHP error logs
+/logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-workspace

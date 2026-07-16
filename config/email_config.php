@@ -1,28 +1,26 @@
 <?php
-// ============================================================
-//  Email Configuration — switches between local & production
-// ============================================================
+// Prevent direct access
+if (count(get_included_files()) === 1) {
+    http_response_code(403);
+    exit("Direct access not allowed");
+}
 
-// AUTO-DETECT environment
-$is_production = (
-    strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') === false &&
-    strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') === false
-);
-
-// ---- LOCAL (Mailtrap sandbox) ----
-define('MAIL_HOST',       $is_production ? 'smtp-relay.brevo.com'      : 'sandbox.smtp.mailtrap.io');
-define('MAIL_PORT',       $is_production ? 587                          : 2525);
-define('MAIL_SECURE',     $is_production ? 'tls'                        : 'tls');
-define('MAIL_USERNAME',   $is_production ? 'YOUR_BREVO_LOGIN_EMAIL'     : 'bd2537a2c7f91b');
-define('MAIL_PASSWORD',   $is_production ? 'YOUR_BREVO_SMTP_KEY'        : '6eb575eefadd55');
-define('MAIL_FROM_EMAIL', 'noreply@travelindia.com');
-define('MAIL_FROM_NAME',  'The Real Travel');
+// Mail Configuration — loaded from environment variables
+define('MAIL_HOST',       $_ENV['MAIL_HOST'] ?? 'sandbox.smtp.mailtrap.io');
+define('MAIL_PORT',       (int)($_ENV['MAIL_PORT'] ?? 2525));
+define('MAIL_SECURE',     $_ENV['MAIL_SECURE'] ?? 'tls');
+define('MAIL_USERNAME',   $_ENV['MAIL_USERNAME'] ?? '');
+define('MAIL_PASSWORD',   $_ENV['MAIL_PASSWORD'] ?? '');
+define('MAIL_FROM_EMAIL', $_ENV['MAIL_FROM_EMAIL'] ?? 'noreply@travelindia.com');
+define('MAIL_FROM_NAME',  $_ENV['MAIL_FROM_NAME'] ?? 'The Real Travel');
 
 // ============================================================
 //  Beautiful HTML Email Templates
 // ============================================================
 
 function getOtpEmailTemplate($fname, $otp) {
+    $fname = htmlspecialchars($fname, ENT_QUOTES, 'UTF-8');
+    $otp = htmlspecialchars($otp, ENT_QUOTES, 'UTF-8');
     return "
     <!DOCTYPE html>
     <html>
@@ -95,6 +93,7 @@ function getOtpEmailTemplate($fname, $otp) {
 }
 
 function getPasswordResetTemplate($reset_link) {
+    $reset_link = htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8');
     return "
     <!DOCTYPE html>
     <html>

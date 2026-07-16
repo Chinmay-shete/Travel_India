@@ -1,79 +1,69 @@
 <?php
 include('connection.php');
-  use PHPMailer\PHPMailer\PHPMailer;
-  use PHPMailer\PHPMailer\Exception;
-  
-  require '../PHPMailer/src/Exception.php';
-  require '../PHPMailer/src/PHPMailer.php';
-  require '../PHPMailer/src/SMTP.php';
- 
 
-   if(isset($_POST['send'])){
-    $name = $_POST['name'];                
-    $email = $_POST['email'];
-    $massage = $_POST['massage'];
- 
-    $sql = "insert into feedback (name, email, massage) 
-    values('$name','$email','$massage')";
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-    $result = $conn->query($sql);
- 
-    if($result){
-       
+if (isset($_POST['send'])) {
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $massage = trim($_POST['massage'] ?? '');
 
-    
- 
-$mail = new PHPMailer(true);
+    // Server-side validation
+    if (empty($name) || empty($email) || empty($massage)) {
+        die("All fields are required.");
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("Invalid email format.");
+    }
+    if (strlen($name) > 100 || strlen($email) > 100 || strlen($massage) > 5000) {
+        die("Input exceeds allowed length.");
+    }
 
-try {
-    //Server settings
-    $mail->SMTPDebug = 0;                      
-    $mail->isSMTP();                                           
-    $mail->Host       = 'smtp.gmail.com';                    
-    $mail->SMTPAuth   = true;                                    
-    $mail->Username   = 'harsh1234vathare@gmail.com';                     
-    $mail->Password   = 'olfq duvu rucq tvsv';                               
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            
-    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+    // Prepared Statement
+    $stmt = $conn->prepare("INSERT INTO feedback (name, email, massage) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $name, $email, $massage);
+    $result = $stmt->execute();
+    $stmt->close();
 
-    //Recipients
-    $mail->setFrom('harsh1234vathare@gmail.com', 'Travel_India.com');
-    $mail->addAddress('tourism@mailinator.com');     //Add a recipient
-    $mail->addAddress('travelindia9500@gmail.com');               //Name is optional
-    $mail->addReplyTo('harsh1234vathare@gmail.com', 'Information');
-    
-    $mail->isHTML(true);                                  //Set email format to HTML
-    $mail->Subject = 'Feedback From '. $_POST['name'] .'..!';
-    $mail->Body    = '<h3>Hello Travel_India Team ,</h3> <p><b> You got a new message from '. $_POST['name'] .' ,</b></p>-
+    if ($result) {
+        $mail = new PHPMailer(true);
+        try {
+            // Server settings
+            $mail->SMTPDebug = 0;                      
+            $mail->isSMTP();                                           
+            $mail->Host       = MAIL_HOST;                    
+            $mail->SMTPAuth   = true;                                    
+            $mail->Username   = MAIL_USERNAME;                     
+            $mail->Password   = MAIL_PASSWORD;                               
+            $mail->SMTPSecure = (MAIL_SECURE === 'ssl' || MAIL_SECURE === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;            
+            $mail->Port       = MAIL_PORT;                                    
 
-    <p><b> Their Email_Id :-</b>'. $_POST['email'] .' </p>- 
-    <p><b> Messages :- </b>'. $_POST['massage'] . '</p>
-
-
-    <p><h3>Best wishes ,</h3><b> Travel_India Team </b></p>
- 
-  
-       ';
-             
- 
-
-    $res = $mail->send();
-    if($res)
-       echo  "<script>alert('Your Messages succesfully Send..!')</script>";//'Message has been sent';
-    else 
-    echo  "<script>alert('Your Messages not Send..!')</script>";///'Message has been not sent';
-
- } 
-catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            // Recipients
+            $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+            $mail->addAddress('tourism@mailinator.com');
+            $mail->addAddress('travelindia9500@gmail.com');
+            $mail->addReplyTo($email, $name);
+            
+            $mail->isHTML(true);
+            $mail->Subject = 'Feedback From ' . h($name) . '..!';
+            $mail->Body    = '<h3>Hello Travel_India Team,</h3>
+                              <p><b>You got a new message from ' . h($name) . ',</b></p>
+                              <p><b>Their Email ID:</b> ' . h($email) . '</p> 
+                              <p><b>Message:</b><br>' . nl2br(h($massage)) . '</p>
+                              <p><h3>Best wishes,</h3><b>Travel_India Team</b></p>';
+            
+            if ($mail->send()) {
+                echo "<script>alert('Your Message was successfully sent..!')</script>";
+            } else {
+                echo "<script>alert('Your Message was not sent..!')</script>";
+            }
+        } catch (Exception $e) {
+            error_log("PHPMailer error in feedback: " . $mail->ErrorInfo);
+            echo "<script>alert('Message could not be sent. Mailer Error occurred.')</script>";
+        }
+    } else {
+        echo "Invalid Query..!";
+    }
 }
-
-
- 
-    }
-    else{
-       echo "Invalid Query..!";
-    }
- 
- }
 ?>

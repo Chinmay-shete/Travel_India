@@ -1,5 +1,5 @@
 <?php
-include '../config/connection.php'; // Include your database connection
+include 'config/connection.php'; // Include your database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['booking_id'])) {
     $booking_id = $_POST['booking_id'];

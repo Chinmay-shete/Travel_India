@@ -1,5 +1,5 @@
 <?php
-include("../config/connection.php");
+include("config/connection.php");
  
 ?>
 <!DOCTYPE html>
@@ -11,9 +11,8 @@ include("../config/connection.php");
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
      
@@ -70,11 +69,11 @@ include("../config/connection.php");
                 ?> 
                 <div class="menu-section">
                     <div class="menu">
-                        <h1 class="animate-text" data-index="1"><a href="../profile/profile.php?get_Id=<?php echo $row['user_Id'] ?>"> Your Account </a> </h1>
-                        <h1 class="animate-text signIn" data-index="2" id="a"><a href="../Lakshadweep/tourlist.php"> Packages</a></h1>
+                        <h1 class="animate-text" data-index="1"><a href="profile/profile.php?get_Id=<?php echo $row['user_Id'] ?>"> Your Account </a> </h1>
+                        <h1 class="animate-text signIn" data-index="2" id="a"><a href="Lakshadweep/tourlist.php"> Packages</a></h1>
                         <h1 class="animate-text sign" data-index="3" id="a"><a href="Book_data.php">Booking</a></h1>
-                        <h1 class="animate-text" data-index="4" id="a"><a href="../index.php">logout</a></h1>
-                        <h1 class="animate-text" data-index="5"><a href="../Get_in_Touch/contact.php">get in touch</a></h1>
+                        <h1 class="animate-text" data-index="4" id="a"><a href="index.php">logout</a></h1>
+                        <h1 class="animate-text" data-index="5"><a href="Get_in_Touch/contact.php">get in touch</a></h1>
                     </div>
 
 
@@ -141,14 +140,14 @@ include("../config/connection.php");
 
 
             <div class="location">
-                <h1><a href="../html/Orange County.php?cityId=100">Orange County</a></h1>
+                <h1><a href="../html/orange-county.php?cityId=100">Orange County</a></h1>
                
                 <h1><a href="../html/new-york.php?cityId=200">new york</a></h1>
                 
                 <h1><a href="../html/Atlanta.php?cityId=300">Atlanta</a></h1>
-                <h1><a href="../html/New Jersey.php?cityId=400">New Jersey</a></h1>
+                <h1><a href="../html/new-jersey.php?cityId=400">New Jersey</a></h1>
                 <h1><a href="../html/Dallas.php?cityId=500">Dallas</a></h1>
-                <h1><a href="../html/Salt Lake City.php?cityId=600">Salt Lake City</a></h1> 
+                <h1><a href="../html/salt-lake-city.php?cityId=600">Salt Lake City</a></h1> 
             </div> 
 
         </div> 
@@ -198,6 +197,6 @@ include("../config/connection.php");
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
    
-     <script src="../js/script.js"></script>
+     <script src="js/script.js"></script>
 </body>
 </html>

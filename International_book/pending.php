@@ -104,7 +104,7 @@ if (isset($_POST['submit'])) {
   if ($qury) {
     //echo "<script>alert('Data Inserted Successfully..!')</script>";
     Sendemail_approvel($Payment_Id, $total_rate, $Name, $emailforpayment, $phone, $Package_Date, $Package_Name, $Package_Duration);
-    header("Refresh:0.2; url=../other/Book_data.php");
+    header("Refresh:0.2; url=../Book_data.php");
   } else {
     //echo "Not Inserted..!";
   }
