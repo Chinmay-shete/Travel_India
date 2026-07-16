@@ -101,18 +101,23 @@ document.querySelector(".close").addEventListener("click", () => {
 
 //menu start==>
 document.querySelector(".open").addEventListener("click", () => {
+  gsap.to(images, {
+    opacity: 1,
+  });
+
   gsap.to(".page1-part1", {
     top: 0,
     overflow: "hidden",
-    duration: 1.05,
-    ease: "elastic.out(0.5,1)",
+    duration: 1.2,
+    ease: "elastic.out(0.5, 1)",
   });
 
   const headings = new SplitType(".animate-text");
   gsap.to(".char", {
     y: 0,
-    duration: 1,
-    delay: 0.2,
+    stagger: 0.05,
+    duration: 1.2,
+    delay: 0.5,
     opacity: 1,
   });
 });
@@ -157,16 +162,10 @@ headings.forEach((heading) => {
     }
   });
 
-  heading.addEventListener(
-    "mouseleave",
-    () => {
-      gsap.to(images, {
-        duration: 2,
-        delay: 2,
-      });
-    },
-    hideAllImages
-  );
+  heading.addEventListener("mouseleave", () => {
+    hideAllImages();
+    gsap.to(headings, { opacity: 1, scale: 1, duration: 0.3 });
+  });
 });
 hideAllImages();
 //  menu under end==>
@@ -309,12 +308,13 @@ const lenis = new Lenis({
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
 });
 
-function raf(time) {
-  lenis.raf(time);
-  requestAnimationFrame(raf);
-}
+lenis.on('scroll', ScrollTrigger.update);
 
-requestAnimationFrame(raf);
+gsap.ticker.add((time)=>{
+  lenis.raf(time * 1000)
+});
+
+gsap.ticker.lagSmoothing(0);
 
 const tl = gsap
   .timeline({

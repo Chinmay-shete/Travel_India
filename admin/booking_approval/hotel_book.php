@@ -130,7 +130,7 @@ $all_result = $all_stmt->get_result();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hotel Book Record</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
   <link rel="stylesheet" href="../../css/pwd_update.css">
   <style>
     html,
@@ -314,14 +314,18 @@ $all_result = $all_stmt->get_result();
       </table>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <script>
-    const locoScroll = new LocomotiveScroll({
-      el: document.querySelector(".page1"),
-      smooth: true,
-    });
-
-    document.addEventListener("DOMContentLoaded", function() {
+    const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+document.addEventListener("DOMContentLoaded", function() {
         const statusCells = document.querySelectorAll(".status-cell");
         statusCells.forEach(function(cell) {
             if (cell.textContent === "Approved") {

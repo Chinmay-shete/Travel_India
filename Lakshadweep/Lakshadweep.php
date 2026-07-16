@@ -7,7 +7,7 @@
    <title>Document</title>
    <link
      rel="stylesheet"
-     href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
+     href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
    <link rel="stylesheet" href="Lakshadweep.css" />
    <link
      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
@@ -113,10 +113,7 @@
      <div class="page6">
        <div class="pacakge-section">
          <div
-           class="package1"
-           data-scroll
-           data-scroll-speed="3"
-           data-scroll-direction="vertical">
+           class="package1">
            <h3>Silver Package</h3>
            <ul class="package-features1">
              <h5>3-star hotel stay for 3 nights</h5>
@@ -132,10 +129,7 @@
            <h2 style="font-size: 1.5vw">price just 100rs only</h2>
          </div>
          <div
-           class="package2"
-           data-scroll
-           data-scroll-speed="-3"
-           data-scroll-direction="vertical">
+           class="package2">
            <h3>Gold Package</h3>
            <ul class="package-features2">
              <h5>4-star hotel stay for 5 nights</h5>
@@ -158,10 +152,7 @@
        </div>
        <div class="pacakge-section">
          <div
-           class="package1"
-           data-scroll
-           data-scroll-speed="-2"
-           data-scroll-direction="vertical">
+           class="package1">
            <h3>Diamond Package</h3>
            <ul class="package-features1">
              <h5>5-star luxury hotel stay for 7 nights</h5>
@@ -234,7 +225,7 @@
      </div>
    </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
+   <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
    <script
      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
      integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug=="
