@@ -39,19 +39,18 @@ const first = function () {
 first();
 
 const backImg = document.querySelectorAll(".backSide img");
-backImg.forEach((img) => {
-  addEventListener("mousemove", (e) => {
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+window.addEventListener("mousemove", (e) => {
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
 
-    const movementX = (screenWidth / 2 - mouseX) * 0.1;
-    const movementY = (screenHeight / 2 - mouseY) * 0.1;
+  if (window.matchMedia("(pointer: coarse)").matches) return;
 
+  backImg.forEach((img) => {
     gsap.to(img, {
-      x: movementX,
-      y: movementY,
+      x: (screenWidth / 2 - mouseX) * 0.1,
+      y: (screenHeight / 2 - mouseY) * 0.1,
       duration: 6,
       ease: "slow(0.1,0.1,false)",
     });
@@ -293,7 +292,18 @@ closeSignUp.addEventListener("click", () => {
 
 const text = new SplitType(".text h6", { types: "lines" });
 
-//  const headings = new SplitType(".header h1", { types: "chars" });
+const headerSplit = new SplitType('.header h1', { types: 'chars' });
+gsap.from(headerSplit.chars, {
+    scrollTrigger: {
+        trigger: '.header h1',
+        start: 'top 80%'
+    },
+    y: '15vh',
+    opacity: 0,
+    duration: 0.6,
+    stagger: 0.05,
+    ease: 'power3.out'
+});
 const lenis = new Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

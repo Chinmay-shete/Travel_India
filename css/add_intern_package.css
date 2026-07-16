@@ -2,12 +2,16 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: twl;
 }
 
 body {
-    background-color: #f3f4f6;
-    color: #333;
+    background-color: #0b0a0e;
+    color: #f3f1f1;
+}
+
+h1, h2, h3, h4 {
+    font-family: Aeonik;
 }
 
 .container {
@@ -19,20 +23,21 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #004080;
-    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2vh 2vw;
     color: white;
 }
 
 .nav h1 {
-    font-size: 2rem;
+    font-size: 2vw;
 }
 
 .nav-part2 h3 a {
     color: #fff;
     text-decoration: none;
-    margin-left: 20px;
-    font-size: 1.2rem;
+    margin-left: 2vw;
+    font-size: 1.2vw;
 }
 
 .nav-part2 h3 a:hover {
@@ -41,58 +46,61 @@ body {
 
 .package-form {
     display: flex;
-    margin-top: 30px;
-    gap: 30px;
+    margin-top: 3vh;
+    gap: 3vw;
 }
 
 .image-section img {
     width: 100%;
     max-width: 400px;
     height: auto;
-    border-radius: 10px;
+    border-radius: 1vw;
 }
 
 .form-section {
     flex: 1;
-    background-color: white;
-    padding: 30px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3vh 3vw;
+    box-shadow: 0 0.4vw 0.8vw rgba(0, 0, 0, 0.4);
+    border-radius: 1vw;
 }
 
 .form-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    color: #004080;
+    font-size: 1.8vw;
+    margin-bottom: 2vh;
+    color: darkorange;
 }
 
 .input-group {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 1vw;
+    margin-bottom: 2vh;
 }
 
 .input-group input,
 textarea,
 select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-    margin-top: 5px;
+    padding: 1vh;
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5vw;
+    font-size: 1vw;
+    margin-top: 0.5vh;
 }
 
 .input-group input:focus,
 textarea:focus,
 select:focus {
     outline: none;
-    border-color: #004080;
-    box-shadow: 0 0 4px rgba(0, 64, 128, 0.5);
+    border-color: darkorange;
+    box-shadow: 0 0 0.4vw rgba(255, 140, 0, 0.5);
 }
 
 .select-group {
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
 }
 
 textarea {
@@ -101,19 +109,20 @@ textarea {
 
 .submitButton {
     width: 100%;
-    padding: 15px;
-    background-color: #004080;
+    padding: 1.5vh;
+    background-color: darkorange;
     border: none;
     color: white;
-    font-size: 1.2rem;
-    border-radius: 5px;
+    font-size: 1.2vw;
+    border-radius: 0.5vw;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .submitButton:hover {
-    background-color: #003366;
+    background-color: #ff8c00;
 }
 
 .submitButton:active {
-    background-color: #002244;
+    background-color: #e67300;
 }

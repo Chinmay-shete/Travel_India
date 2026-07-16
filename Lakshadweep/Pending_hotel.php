@@ -20,8 +20,8 @@
          $mail->isSMTP();                                            //Send using SMTP
          $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
          $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-         $mail->Username   = 'harsh1234vathare@gmail.com';                     //SMTP username
-         $mail->Password   = 'olfq duvu rucq tvsv';                               //SMTP password
+         $mail->Username   = getenv('MAIL_USERNAME');                     //SMTP username
+         $mail->Password   = getenv('MAIL_PASSWORD');                               //SMTP password
          $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
          $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
          $mail->setFrom('travelindia9500@gmail.com', 'The Real-Travel.com');
@@ -29,24 +29,28 @@
          $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
          $mail->isHTML(true);                                  //Set email format to HTML
         // $mail->Subject = ' Approvel Request From ' . $_POST['name'] . '..!';
-        $mail->Subject = ' Approvel Request From ' . $Name . '..!';
-         $mail->Body    = "<h3>hello The Real-Travel Team !
-                        <p><h4>My name is " . $Name . " . </h4></p></h3><br>
-                        <h2><b> Payment Info !</b></h2>
-                        <p><b>  Name : </b>" . $Name . "  <br> 
-                           <b>  Email Id : </b>" . $emailforpayment . "  <br> 
-                           <b>  Mobile No : </b>" . $phone .  " <br>
-                           <b>  Staying Date : </b>" . $Hotel_Date . "  <br>
-                           <b>  Hotel Name : </b> " . $Hotel_Name . "   <br>
-                           <b>  Staying Days : </b> " . $Hotel_Duration . " <br>
-                              <br>
+          $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+          $host     = $_SERVER['HTTP_HOST'];
+          $approval_link = $protocol . "://" . $host . "/admin/adminhomepage.php";
 
-                             <p><h2> Payment Status ! </h2></p>
-                             <p><b>Payment Id : </b>". $Payment_Id . " </p>
-                             <p><b>Total Price : </b>". $total_rate . "Rs </p>
-                             <p><b>Payment Status : </b> <b style=color:green;> Success </b> </p><br><br>
-                             <button> <a href='http://localhost/main/travel_india-new/admin/adminhomepage.php'>Approval </a></button>
-                        ";
+          $mail->Subject = ' Approvel Request From ' . $Name . '..!';
+          $mail->Body    = "<h3>hello The Real-Travel Team !
+                         <p><h4>My name is " . $Name . " . </h4></p></h3><br>
+                         <h2><b> Payment Info !</b></h2>
+                         <p><b>  Name : </b>" . $Name . "  <br> 
+                            <b>  Email Id : </b>" . $emailforpayment . "  <br> 
+                            <b>  Mobile No : </b>" . $phone .  " <br>
+                            <b>  Staying Date : </b>" . $Hotel_Date . "  <br>
+                            <b>  Hotel Name : </b> " . $Hotel_Name . "   <br>
+                            <b>  Staying Days : </b> " . $Hotel_Duration . " <br>
+                               <br>
+
+                              <p><h2> Payment Status ! </h2></p>
+                              <p><b>Payment Id : </b>". $Payment_Id . " </p>
+                              <p><b>Total Price : </b>". $total_rate . "Rs </p>
+                              <p><b>Payment Status : </b> <b style=color:green;> Success </b> </p><br><br>
+                              <button> <a href='" . $approval_link . "'>Approval </a></button>
+                         ";
          $res = $mail->send();
          if ($res) {
          } else
@@ -73,67 +77,72 @@
 <?php
    include("../config/connection.php");
 
-   $order_Id = $_GET['razorpay_payment_id'];
-   //  $order_Id = $_SESSION['razorpay_payment_id'];
-     $order_Id;
+   $order_Id = $_POST['razorpay_payment_id'] ?? $_GET['razorpay_payment_id'] ?? $_POST['Payment_Id'] ?? $_SESSION['Payment_Id'] ?? '';
+   $_SESSION['Payment_Id'] = $order_Id;
 
-     $_SESSION['Payment_Id'] = $order_Id;
+   use Razorpay\Api\Api;
+
+   $razorpay_order_id   = $_POST['razorpay_order_id'] ?? '';
+   $razorpay_payment_id = $_POST['razorpay_payment_id'] ?? '';
+   $razorpay_signature  = $_POST['razorpay_signature'] ?? '';
+
+   if (!empty($razorpay_payment_id) && !empty($razorpay_signature)) {
+       $api = new Api(getenv('RAZORPAY_KEY_ID'), getenv('RAZORPAY_KEY_SECRET'));
+       try {
+           $api->utility->verifyPaymentSignature([
+               'razorpay_order_id'   => $razorpay_order_id,
+               'razorpay_payment_id' => $razorpay_payment_id,
+               'razorpay_signature'  => $razorpay_signature
+           ]);
+           $_SESSION['payment_verified'] = true;
+           $_SESSION['verified_payment_id'] = $razorpay_payment_id;
+       } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+           http_response_code(400);
+           die("Payment verification failed.");
+       }
+   }
 
    $name = $_SESSION["username"];
-     $email = $_SESSION["Email_ID"];
-     $phone = $_SESSION["phone"];
-     $rate = $_SESSION['rate'];
-     $Hotel_Id = $_SESSION["Hotel_Id"];
+   $email = $_SESSION["Email_ID"];
+   $phone = $_SESSION["phone"];
+   $rate = $_SESSION['rate'];
+   $Hotel_Id = $_SESSION["Hotel_Id"];
 
+   $Hotel_Date = $_SESSION["Hotel_Date"];
+   $Hotel_Name = $_SESSION["Hotel_Name"];
+   $Hotel_Duration = $_SESSION["total_room"];
 
-     $Hotel_Date = $_SESSION["Hotel_Date"];
-    $Hotel_Name = $_SESSION["Hotel_Name"];
-    $Hotel_Duration = $_SESSION["total_room"];
-     
+   //find user_Id
+   $user = $_SESSION["email"];
+   $query = mysqli_query($conn, "select * from users where email ='$user'");
+   $row = mysqli_fetch_array($query);
+   $User_Id = $row['user_Id'];
 
+   ///Insert into Payment table 
+   if (isset($_POST['submit'])) {
+       if (!isset($_SESSION['payment_verified']) || $_SESSION['payment_verified'] !== true || $_SESSION['verified_payment_id'] !== $_POST['Payment_Id']) {
+           http_response_code(403);
+           die("Payment was not verified.");
+       }
+       unset($_SESSION['payment_verified']);
+       unset($_SESSION['verified_payment_id']);
 
+       $Payment_Id = $_POST['Payment_Id'];
+       $total_rate = $_POST['rate'];
+       $Name = $_POST['name'];
+       $emailforpayment = $_POST['emailforpayment'];
 
+       $sql = "INSERT INTO hotel_payment (User_Id, Hotel_Id , Razorpay_Payment_Id, Total_Price, Name, Email_Id) VALUES
+       ('$User_Id','$Hotel_Id','$Payment_Id','$total_rate', '$Name','$emailforpayment')";
+       $qury = $conn->query($sql);
 
-
-
-
-
-
-
-//find user_Id
-$user = $_SESSION["email"];
-
-$query = mysqli_query($conn, "select * from users where email ='$user'");
-$row = mysqli_fetch_array($query);
-
-$User_Id = $row['user_Id']; //user_Id = > 
-$Hotel_Id; //           TourPackage_Id
-//$order_Id;       //           Payment_Id
-
-
-///Insert into Payment table 
-if (isset($_POST['submit'])) {
-  $Payment_Id = $_POST['Payment_Id'];
-  $total_rate = $_POST['rate'];
-  $Name = $_POST['name'];
-  $emailforpayment = $_POST['emailforpayment'];
-
-  $sql = "INSERT INTO hotel_payment (User_Id, Hotel_Id , Razorpay_Payment_Id, Total_Price, Name, Email_Id) VALUES
-  ('$User_Id','$Hotel_Id','$Payment_Id','$total_rate', '$Name','$emailforpayment')";
-  $qury = $conn->query($sql);
-
-  if ($qury) {
-    //echo "<script>alert('Data Inserted Successfully..!')</script>";
-    Sendemail_approvel($Payment_Id, $total_rate, $Name, $emailforpayment, $phone, $Hotel_Date, $Hotel_Name, $Hotel_Duration);
-    header("Refresh:0.2; url=../Book_data.php");
-  } else {
-    //echo "Not Inserted..!";
-  }
-}
-
-//    //echo $_SESSION["email"];
-
- 
+       if ($qury) {
+           Sendemail_approvel($Payment_Id, $total_rate, $Name, $emailforpayment, $phone, $Hotel_Date, $Hotel_Name, $Hotel_Duration);
+           header("Refresh:0.2; url=../Book_data.php");
+       } else {
+           echo "Invalid query..!";
+       }
+   }
 ?>
 <html>
   <head>
@@ -266,6 +275,7 @@ if (isset($_POST['submit'])) {
         <h1>Request Pending</h1>
         <p>Your booking request is currently under review.<br>We'll get back to you shortly!</p>
         <form action="" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="Payment_Id" value="<?php echo $order_Id ?>">
             <input type="hidden" name="name" value="<?php echo $name; ?>">
             <input type="hidden" name="rate" value="<?php echo $rate; ?>">

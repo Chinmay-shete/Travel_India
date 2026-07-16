@@ -1,12 +1,8 @@
-@font-face {
-  font-family: nb;
-  src: url(../css/font/NBInternationalProBoo.ttf);
-}
 * {
   margin: 0%;
   padding: 0%;
   box-sizing: border-box;
-  font-family: nb;
+  font-family: twl;
 }
 html,
 body {

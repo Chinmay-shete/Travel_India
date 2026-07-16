@@ -1,5 +1,6 @@
 <?php
-   include("../config/connection.php");
+require_once "../config/user_guard.php";
+include("../config/connection.php");
 
    if (isset($_GET['Intern_Id'])) {
     $sql = "select * from create_intern_package where CIPackage_Id = " .  $_GET['Intern_Id'];

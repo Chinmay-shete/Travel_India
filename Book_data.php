@@ -206,13 +206,8 @@ error_reporting(0);
 
                 // Add a cancel button for "Pending" status
                 if ($row['Status'] === "Pending") {
-                    // echo "<td><button class='cancel-btn' type='submit' name='Cancel'  > Cancel </button></td>'";
-
                     echo "<td>
-                    <form method='POST' action='cancel_booking.php'>
-                        <input type='hidden' name='booking_id' value='". $row['id']. "'>
-                        <button class='cancel-btn' type='submit' name='Cancel'>Cancel</button>
-                    </form>
+                    <button class='cancel-btn-ajax' data-id='". $row['id']. "' data-type='booking'>Cancel</button>
                 </td>";
                 } else {
                     echo "<td></td>"; // Empty cell for other statuses
@@ -336,13 +331,8 @@ error_reporting(0);
 
                 // Add a cancel button for "Pending" status
                 if ($row['Status'] === "Pending") {
-                    // echo "<td><button class='cancel-btn' data-id='" . $row['booking_id'] . "'>Cancel</button></td>";
-
                     echo "<td>
-                    <form method='POST' action='cancel_hotel.php'>
-                        <input type='hidden' name='booking_id' value='". $row['id']. "'>
-                        <button class='cancel-btn' type='submit' name='Cancel'>Cancel</button>
-                    </form>
+                    <button class='cancel-btn-ajax' data-id='". $row['id']. "' data-type='hotel'>Cancel</button>
                 </td>";
                 } else {
                     echo "<td></td>"; // Empty cell for other statuses
@@ -370,12 +360,42 @@ error_reporting(0);
                         });
 
 
-                        // Cancel button functionality
-                        document.querySelectorAll(".cancel-btn").forEach(function(button) {
-                            button.addEventListener("click", function() {
-                                const bookingId = this.getAttribute("data-id");
+                        // AJAX Cancel button functionality
+                        document.querySelectorAll(".cancel-btn-ajax").forEach(function(btn) {
+                            btn.addEventListener("click", async function() {
+                                if (!confirm("Are you sure you want to cancel this booking?")) return;
 
-                                // confirm("Are you sure you want to cancel this booking?");
+                                const bookingId = btn.getAttribute("data-id");
+                                const type = btn.getAttribute("data-type");
+                                const endpoint = type === "hotel" ? "cancel_hotel.php" : "cancel_booking.php";
+
+                                btn.disabled = true;
+                                btn.textContent = "Cancelling...";
+
+                                try {
+                                    const res = await fetch(endpoint, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                        body: "booking_id=" + bookingId
+                                    });
+                                    const data = await res.json();
+
+                                    if (data.success) {
+                                        const row = btn.closest("tr");
+                                        const statusCell = row.querySelector(".status-cell");
+                                        statusCell.textContent = "Cancelled";
+                                        statusCell.style.color = "gray";
+                                        btn.remove();
+                                    } else {
+                                        alert(data.error || "Cancellation failed.");
+                                        btn.disabled = false;
+                                        btn.textContent = "Cancel";
+                                    }
+                                } catch (e) {
+                                    alert("Cancellation request failed.");
+                                    btn.disabled = false;
+                                    btn.textContent = "Cancel";
+                                }
                             });
                         });
                     });

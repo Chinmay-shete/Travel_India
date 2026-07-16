@@ -56,6 +56,7 @@ $user = $_SESSION["email"];
           </div>
           <div class="container"> 
             <form id="booking-form" action="pay_now.php?id=<?php echo $data['CIPackage_Id'] ?>" method="post">  
+              <?php echo csrf_field(); ?>
               <label for="activity" class="required">full name</label>
               <input type="text" id="name" name="name" placeholder="Full Name" required>
     

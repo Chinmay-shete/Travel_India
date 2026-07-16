@@ -264,6 +264,7 @@ if (isset($_POST['submit'])) {
 
                     if ($row['status'] == 'active') {
                         $_SESSION["email"] = $email;
+                        $_SESSION["user_id"] = $row["user_Id"];
                         $_SESSION["user_type"] = $row["user_type"];
                         $_SESSION["fname"] = $row["fname"];
 

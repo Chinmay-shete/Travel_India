@@ -19,13 +19,14 @@ const locoScroll = new LocomotiveScroll({
     gsap.to(".page1-part1", {
       top: 0,
       overflow: "hidden",
-      duration: 1.05,
+      duration: 1.2,
+      ease: "elastic.out(0.5, 1)",
     });
     const headings = new SplitType(".animate-text");
   
     gsap.to(".char", {
       y: 0,
-      // stagger: 0.05,
+      stagger: 0.05,
       duration: 1.2,
       delay: 0.5,
       opacity: 1,
@@ -80,18 +81,11 @@ const locoScroll = new LocomotiveScroll({
       }
     });
   
-    heading.addEventListener("mouseleave",()=>{
-           gsap.to(images,{
-            
-            duration:2,
-            delay:2
-           })
-    } ,hideAllImages);
+    heading.addEventListener("mouseleave", () => {
+      hideAllImages();
+      gsap.to(headings, { opacity: 1, scale: 1, duration: 0.3 });
+    });
   });
   
   // Initially hide all images
   hideAllImages();
-  
-  
-  
-  

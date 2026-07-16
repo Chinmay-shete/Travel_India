@@ -162,6 +162,7 @@ $_SESSION['hotel_price'] = $Total_Price;
           <div class="container"> 
             
               <form id="booking-form" action="pay_now_hotel.php?id=<?php echo $data['Hotel_Id'] ?>" method="post">
+                  <?php echo csrf_field(); ?>
                   <label for="activity" class="required">full name</label>
                   <input type="text" id="name" name="name" placeholder="Full Name" required>
 

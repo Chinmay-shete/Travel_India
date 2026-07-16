@@ -1,4 +1,5 @@
 <?php
+require_once "../config/user_guard.php";
 include("../config/connection.php");
 
 // echo "hello ";

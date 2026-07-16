@@ -3,10 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_SESSION['email'])) {
-    // Redirect to login page
-    // Note: book_files is nested, so let's use absolute path redirect or relative back to root
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     header("Location: ../index.php");
-    exit;
+    exit();
 }
 ?>
