@@ -1,13 +1,10 @@
 <?php
 include("../config/connection.php");
+require_once("../config/email_config.php");
 error_reporting(0);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
-require '../PHPMailer/src/Exception.php';
-require '../PHPMailer/src/PHPMailer.php';
-require '../PHPMailer/src/SMTP.php';
 
 function Sendemail_Verify($otp, $verify_email)
 {
@@ -15,31 +12,30 @@ function Sendemail_Verify($otp, $verify_email)
 
     try {
         $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
+        configure_smtp_mailer($mail);
 
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
         $get_email = $verify_email;
         $mail->addAddress($get_email);
 
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
+        $mail->addReplyTo(SMTP_FROM_EMAIL, 'Information');
 
         $mail->isHTML(true);
-        $mail->Subject = 'Verification code for verify your email address..!';
-        $mail->Body = "<h3>Hello users </h3><h3> You need to verify your account with this tourism website!</h3>
-                      <h3> Enter this verification code for activate your account: <b>" . $otp . "</b></h3><br/><br/>";
+        $mail->Subject = 'Verification code to verify your email address';
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+                <h2>Hello User,</h2>
+                <p>You need to verify your account with <strong>The Real Travel</strong>!</p>
+                <p>Your OTP verification code is:</p>
+                <h1 style='color: #10B981; font-size: 32px; letter-spacing: 4px; padding: 10px 0;'>" . htmlspecialchars($otp) . "</h1>
+                <p>Enter this verification code to activate your account.</p>
+            </div>";
 
         $res = $mail->send();
         if (!$res) {
-            echo "<script>alert('Your Messages not Send..!')</script>";
+            echo "<script>alert('Your verification email could not be sent.');</script>";
         }
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        error_log("Brevo Mailer Error: " . $mail->ErrorInfo);
     }
 }
 ?>

@@ -1,47 +1,38 @@
 <?php
 include("../config/connection.php");
+require_once("../config/email_config.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
-require '../PHPMailer/src/Exception.php';
-require '../PHPMailer/src/PHPMailer.php';
-require '../PHPMailer/src/SMTP.php';
 
 function send_password_reset($get_email, $token){
     $mail = new PHPMailer(true);
 
     try {
         $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
-        $email = $_POST['email'];
-        $mail->addAddress($email);
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
-        $mail->isHTML(true);
-        $mail->Subject = ' Reset Password Link..!';
-        $mail->Body = "<h3>hello users </h3><h3> You are receiving this email because we received a password reset request for your account.</h3><br>
-                <br/><br/>
-                <a href='http://localhost:3000/Authentication/password_change.php?email=$get_email&verify_token=$token'>Reset Password..! </a>";
+        configure_smtp_mailer($mail);
 
-                // <a href='http://localhost:3000/travel_india-new-main/password_change.php?email=$get_email&verify_token=$token'>Reset Password..! </a>";
+        $email = !empty($get_email) ? $get_email : ($_POST['email'] ?? '');
+        $mail->addAddress($email);
+        $mail->addReplyTo(SMTP_FROM_EMAIL, 'Support');
+        $mail->isHTML(true);
+        $mail->Subject = 'Reset Your Password — The Real Travel';
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+                <h2>Password Reset Request</h2>
+                <p>You are receiving this email because we received a password reset request for your account.</p>
+                <p style='margin: 20px 0;'>
+                    <a href='http://localhost:8080/Authentication/password_change.php?email=" . urlencode($get_email) . "&verify_token=" . urlencode($token) . "' style='background-color: #10B981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;'>Reset Password</a>
+                </p>
+                <p>If you did not request a password reset, no further action is required.</p>
+            </div>";
            
-                 
         $res = $mail->send();
-        if($res){
+        if(!$res){
+            echo "<script>alert('Password reset email could not be sent.');</script>";
         }
-        else {
-            echo "<script>alert('Your Messages not Send..!')</script>";
-        }
-    } 
-    catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    } catch (Exception $e) {
+        error_log("Brevo Mailer Error: " . $mail->ErrorInfo);
     }
 }
 

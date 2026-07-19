@@ -1,13 +1,10 @@
 <?php
 include("config/connection.php");
+require_once("config/email_config.php");
 error_reporting(0);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
-require 'PHPMailer/src/Exception.php';
-require 'PHPMailer/src/PHPMailer.php';
-require 'PHPMailer/src/SMTP.php';
 
 function Sendemail_Verify($fname, $email, $otp)
 {
@@ -15,31 +12,32 @@ function Sendemail_Verify($fname, $email, $otp)
 
     try {
         $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'harsh1234vathare@gmail.com';
-        $mail->Password = 'olfq duvu rucq tvsv';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
+        configure_smtp_mailer($mail);
 
-        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
-        $email = $_POST['email'];
-        $mail->addAddress($email);
-        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
+        $target_email = !empty($email) ? $email : ($_POST['email'] ?? '');
+        $target_fname = !empty($fname) ? $fname : ($_POST['fname'] ?? 'User');
+        $target_otp   = !empty($otp)   ? $otp   : ($_POST['otp']   ?? '');
+
+        $mail->addAddress($target_email);
+        $mail->addReplyTo(SMTP_FROM_EMAIL, 'Support');
 
         $mail->isHTML(true);
-        $mail->Subject = 'Verification code for verify your email address..!';
-        $mail->Body = "<h3>hello " . $_POST['fname'] . "</h3><h3> You need to verify your account with this tourism website !</h3>
-                   <h3> Enter this verification code for activate your account : <b>" . $_POST['otp'] . "</b></h3>
-                   <br/><br/>";
+        $mail->Subject = 'Verification code to verify your email address';
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+                <h2>Hello " . htmlspecialchars($target_fname) . ",</h2>
+                <p>Thank you for registering with <strong>The Real Travel</strong>!</p>
+                <p>Your account verification OTP code is:</p>
+                <h1 style='color: #10B981; font-size: 32px; letter-spacing: 4px; padding: 10px 0;'>" . htmlspecialchars($target_otp) . "</h1>
+                <p>Enter this verification code on the website to activate your account.</p>
+            </div>";
 
         $res = $mail->send();
         if (!$res) {
-            echo "<script>alert('Your Messages not Send..!')</script>";
+            echo "<script>alert('Your verification email could not be sent.');</script>";
         }
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        error_log("Brevo Mailer Error: " . $mail->ErrorInfo);
     }
 }
 
@@ -50,31 +48,46 @@ $act_str = rand(100000, 1000000);
 $activation_code = str_shuffle("abcdefghijklmno" . $act_str);
 
 if (isset($_POST['submit'])) {
-    $otp = $_POST['otp'];
-    $activation_code = $_POST['activation_code'];
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $user_type = $_POST['user_type'];
+    $otp = trim($_POST['otp'] ?? '');
+    if (empty($otp)) {
+        $otp_str = str_shuffle("0123456789");
+        $otp = substr($otp_str, 0, 6);
+    }
+    $activation_code = trim($_POST['activation_code'] ?? '');
+    if (empty($activation_code)) {
+        $act_str = rand(100000, 1000000);
+        $activation_code = str_shuffle("abcdefghijklmno" . $act_str);
+    }
+    $fname = trim($_POST['fname'] ?? '');
+    $lname = trim($_POST['lname'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $user_type = $_POST['user_type'] ?? 'user';
 
     $_SESSION["fname"] = $fname;
+    $_SESSION["email"] = $email;
 
-    $email_check = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($email_check);
+    $stmt = $conn->prepare("SELECT user_Id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($result) > 0) {
-        echo "<script>alert('Email_Id Or Password already Exists..!')</script>";
+    if ($result->num_rows > 0) {
+        echo "<script>alert('An account with this Email address already exists.');</script>";
     } else {
-        $sql = "INSERT INTO users (fname, lname, email, password, user_type ,otp, activation_code) VALUES('$fname','$lname','$email','$password','$user_type' , '$otp','$activation_code')";
-        $qury = $conn->query($sql);
+        $insert = $conn->prepare("INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address) VALUES (?, ?, ?, ?, ?, ?, ?, '0', '', '', '')");
+        $insert->bind_param("sssssss", $fname, $lname, $email, $password, $user_type, $otp, $activation_code);
+        $qury = $insert->execute();
 
         if ($qury) {
-            Sendemail_Verify("$fname", "$email", " $otp");
-            echo "<script>alert('Your registration succesfully..! Please Verify your Email Address..!')</script>";
-            header("Refresh:0.5; url=Authentication/otp_verify.php?code=" . $activation_code);
+            Sendemail_Verify($fname, $email, $otp);
+            echo "<script>
+                alert('Registration successful! Please check your email for the verification OTP code.');
+                window.location.href = 'Authentication/otp_verify.php?code=" . urlencode($activation_code) . "';
+            </script>";
+            exit();
         } else {
-            $_SESSION['status'] = "Registration Failed..!";
+            echo "<script>alert('Registration failed. Please try again.');</script>";
         }
     }
 }
