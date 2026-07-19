@@ -1,27 +1,20 @@
 <?php
-require_once "../config/user_auth_acces.php";
 include("../config/connection.php");
+error_reporting(0);
 
-// Handle delete action securely via POST + CSRF
-if (isset($_POST['action']) && $_POST['action'] === 'delete') {
-    $user_id = (int)($_POST['user_id'] ?? 0);
-    if ($user_id > 0) {
-        $stmt = $conn->prepare("DELETE FROM users WHERE user_Id = ?");
-        $stmt->bind_param("i", $user_id);
-        if ($stmt->execute()) {
-            echo "<script>alert('Data Deleted Successfully..!'); window.location.href='user_data.php';</script>";
-            exit;
-        } else {
-            echo "<script>alert('Not Deleted..!');</script>";
-        }
-        $stmt->close();
+$sql = "select * from users";
+$result = $conn->query($sql);
+
+if (isset($_GET['ID'])) {
+    $sql = "DELETE FROM users WHERE user_Id = " . $_GET['ID'];
+    $Result = $conn->query($sql);
+    if ($Result) {
+        echo "<script>alert('Data Deleted Successfully..!')</script>";
+        header("location:user_data.php");
+    } else {
+        echo "Not Deleted..!";
     }
 }
-
-// Fetch user data using explicit column selection
-$stmt = $conn->prepare("SELECT user_Id, fname, lname, email, user_type FROM users");
-$stmt->execute();
-$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -31,8 +24,8 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Data</title>
-    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
-    <link rel="stylesheet" href="../assets/css/pwd_update.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
+    <link rel="stylesheet" href="../css/pwd_update.css">
     <style>
         html,
         body {
@@ -44,6 +37,8 @@ $result = $stmt->get_result();
             width: 100%;
             min-height: 150vh;
             padding: 0 2vw;
+
+
         }
 
         .part1 {
@@ -52,6 +47,7 @@ $result = $stmt->get_result();
             align-items: center;
             justify-content: center;
             display: flex;
+
             border: .05vw solid white;
         }
 
@@ -60,6 +56,7 @@ $result = $stmt->get_result();
             width: 100%;
             border-collapse: collapse;
             padding: 2vw;
+            
         }
 
         th,
@@ -109,6 +106,8 @@ $result = $stmt->get_result();
                 </div>
             </div>
             <div class="part1">
+
+
                 <table>
                     <tr>
                         <th>User ID</th>
@@ -120,49 +119,33 @@ $result = $stmt->get_result();
                     </tr>
                     <?php
                     if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
+                        while ($row = mysqli_fetch_assoc($result)) {
                     ?>
                             <tr>
-                                <td><?php echo h($row['user_Id']); ?></td>
-                                <td><?php echo h($row['fname']); ?></td>
-                                <td><?php echo h($row['lname']); ?></td>
-                                <td><?php echo h($row['email']); ?></td>
-                                <td><?php echo h($row['user_type']); ?></td>
-                                <td class="action-btn">
-                                    <button><a href="edit_user.php?id=<?php echo h($row['user_Id']); ?>" style="text-decoration: none; color:#08fa08;">Update</a></button>
-                                </td>
-                                <td class="action-btn">
-                                    <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');" style="display:inline;">
-                                        <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="user_id" value="<?php echo h($row['user_Id']); ?>">
-                                        <button type="submit" style="text-decoration: none; color:red; cursor:pointer;">Delete</button>
-                                    </form>
-                                </td>
+                                <td><?php echo $row['user_Id']; ?></td>
+                                <td><?php echo $row['fname']; ?></td>
+                                <td><?php echo $row['lname']; ?></td>
+                                <td><?php echo $row['email']; ?></td>
+                                <td><?php echo $row['user_type']; ?></td>
+                                <td class="action-btn"><button><a href="edit_user.php?id=<?php echo $row['user_Id'] ?>" style="text-decoration: none; color:#08fa08;">Update</a></button></td>
+                                <td class="action-btn"><button><a href="user_data.php?ID=<?php echo $row['user_Id'] ?>" style="text-decoration: none; color:red;">Delete</a></button></td>
                             </tr>
                     <?php
                         }
                     }
                     ?>
                 </table>
+
             </div>
         </div>
     </div>
-    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
     <script>
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        const locoScroll = new LocomotiveScroll({
+            el: document.querySelector(".page1"),
+            smooth: true,
         });
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-</script>
+    </script>
 </body>
 
 </html>
-<?php
-$stmt->close();
-?>

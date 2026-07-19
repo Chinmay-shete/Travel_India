@@ -1,100 +1,80 @@
 <?php
 include("config/connection.php");
-include("config/email_config.php");
-include("config/email_queue.php");
+error_reporting(0);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
 function Sendemail_Verify($fname, $email, $otp)
 {
-    global $conn;
-    $subject = '🔐 Your OTP Verification Code — The Real Travel';
-    $body    = getOtpEmailTemplate($fname, $otp);
-
-    // Try direct send first (fast path)
     $mail = new PHPMailer(true);
+
     try {
-        $mail->SMTPDebug  = 0;
+        $mail->SMTPDebug = 0;
         $mail->isSMTP();
-        $mail->Host       = MAIL_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = MAIL_USERNAME;
-        $mail->Password   = MAIL_PASSWORD;
-        $mail->SMTPSecure = (MAIL_SECURE === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = MAIL_PORT;
-        $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'harsh1234vathare@gmail.com';
+        $mail->Password = 'olfq duvu rucq tvsv';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = 465;
+
+        $mail->setFrom('travelindia9500@gmail.com', 'The Real_Travel.com');
+        $email = $_POST['email'];
         $mail->addAddress($email);
+        $mail->addReplyTo('travelindia9500@gmail.com', 'Information');
+
         $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $body;
-        $mail->AltBody = "Hello $fname, Your OTP is: $otp (valid for 1 minute)";
-        $mail->send();
-        error_log("OTP email sent directly to $email");
+        $mail->Subject = 'Verification code for verify your email address..!';
+        $mail->Body = "<h3>hello " . $_POST['fname'] . "</h3><h3> You need to verify your account with this tourism website !</h3>
+                   <h3> Enter this verification code for activate your account : <b>" . $_POST['otp'] . "</b></h3>
+                   <br/><br/>";
+
+        $res = $mail->send();
+        if (!$res) {
+            echo "<script>alert('Your Messages not Send..!')</script>";
+        }
     } catch (Exception $e) {
-        // Direct send failed — fall back to queue for retry by worker
-        error_log('Direct mail failed, queuing for retry: ' . $mail->ErrorInfo);
-        enqueue_email($conn, $email, $subject, $body);
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 }
 
-// Generate OTP securely
-$otp = (string)random_int(100000, 999999);
-$activation_code = bin2hex(random_bytes(16));
+$otp_str = str_shuffle("0123456789");
+$otp = substr($otp_str, 0, 6);
+
+$act_str = rand(100000, 1000000);
+$activation_code = str_shuffle("abcdefghijklmno" . $act_str);
 
 if (isset($_POST['submit'])) {
     $otp = $_POST['otp'];
     $activation_code = $_POST['activation_code'];
-    $fname = trim($_POST['fname'] ?? '');
-    $lname = trim($_POST['lname'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $user_type = $_POST['user_type'] ?? '';
+    $fname = $_POST['fname'];
+    $lname = $_POST['lname'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $user_type = $_POST['user_type'];
 
-    // Input validation
-    if (empty($fname) || empty($lname) || empty($email) || empty($password) || empty($user_type)) {
-        echo "<script>alert('All fields are required.');</script>";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<script>alert('Invalid email format.');</script>";
-    } elseif (strlen($password) < 6) {
-        echo "<script>alert('Password must be at least 6 characters long.');</script>";
-    } elseif (!in_array($user_type, ['user', 'admin'])) {
-        echo "<script>alert('Invalid user type.');</script>";
+    $_SESSION["fname"] = $fname;
+
+    $email_check = "SELECT * FROM users WHERE email = '$email'";
+    $result = $conn->query($email_check);
+
+    if (mysqli_num_rows($result) > 0) {
+        echo "<script>alert('Email_Id Or Password already Exists..!')</script>";
     } else {
-        $_SESSION["fname"] = $fname;
+        $sql = "INSERT INTO users (fname, lname, email, password, user_type ,otp, activation_code) VALUES('$fname','$lname','$email','$password','$user_type' , '$otp','$activation_code')";
+        $qury = $conn->query($sql);
 
-        // Check if email already exists
-        $stmt = $conn->prepare("SELECT user_Id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            echo "<script>alert('Email already exists!')</script>";
-            $stmt->close();
+        if ($qury) {
+            Sendemail_Verify("$fname", "$email", " $otp");
+            echo "<script>alert('Your registration succesfully..! Please Verify your Email Address..!')</script>";
+            header("Refresh:0.5; url=Authentication/otp_verify.php?code=" . $activation_code);
         } else {
-            $stmt->close();
-            
-            // Hash password securely with Bcrypt
-            $password_hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-
-            // Rate limit check before registration
-            $limit_check = check_rate_limit($conn, 'register', 5, 900);
-            if (!$limit_check['allowed']) {
-                echo "<script>alert('Too many registration attempts. Locked out for " . ceil($limit_check['time_left'] / 60) . " minutes.');</script>";
-            } else {
-                $sql = "INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address) VALUES(?, ?, ?, ?, ?, ?, ?, 'inactive', '', '', '')";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sssssss", $fname, $lname, $email, $password_hash, $user_type, $otp, $activation_code);
-                
-                if ($stmt->execute()) {
-                    Sendemail_Verify($fname, $email, $otp);
-                    echo "<script>alert('Your registration was successful! Please verify your email.'); window.location.href='Authentication/otp_verify.php?code=" . $activation_code . "';</script>";
-                } else {
-                    echo "<script>alert('Registration failed. Please try again.');</script>";
-                }
-                $stmt->close();
-            }
+            $_SESSION['status'] = "Registration Failed..!";
         }
     }
 }
@@ -109,10 +89,10 @@ if (isset($_POST['submit'])) {
     <title>the real hote</title>
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body> 
@@ -162,7 +142,7 @@ if (isset($_POST['submit'])) {
                         <h1 class="animate-text signIn" data-index="2">sign in</h1>
                         <h1 class="animate-text signUp" data-index="3">sign up</h1>
                         <h1 class="animate-text" data-index="4">about us</h1>
-                        <h1 class="animate-text" data-index="5"> <a href="pages/contact/contact_index.php"> get in touch</a></h1>
+                        <h1 class="animate-text" data-index="5"> <a href="Get_in_Touch/contact_index.php"> get in touch</a></h1>
                     </div>
 
                     <div class="about">
@@ -218,101 +198,112 @@ if (isset($_POST['submit'])) {
 
           <div class="container">
   <?php
-  // session already started in connection.php - do NOT call session_start() again
+  // Start the session
+  session_start();
+
+  // Include your database connection file
+  include("config/connection.php"); // Update with the correct path
 
   if (isset($_POST['Login'])) {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // Validate inputs
-    if (empty($email) || empty($password)) {
-        echo "<script>alert('All fields are required.');</script>";
-    } else {
-        // Rate limit check before checking credentials
-        $limit_check = check_rate_limit($conn, 'login', 5, 900);
-        if (!$limit_check['allowed']) {
-            echo "<script>alert('Too many failed login attempts. Locked out for " . ceil($limit_check['time_left'] / 60) . " minutes.');</script>";
+    // Use prepared statements to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
+    $stmt->bind_param("ss", $email, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+      $row = $result->fetch_assoc();
+
+      if ($row["user_type"] == "user") {
+        if ($row['status'] == 'active') {
+          $_SESSION["email"] = $email;
+          echo "<script>alert('Welcome users, Explore this Real_Travel website..!');</script>";
+          echo "<script>window.location.href = 'other/homepage.php';</script>";
         } else {
-            // Select user by email (only fetching explicit columns)
-            $stmt = $conn->prepare("SELECT user_Id, fname, password, status, user_type FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $authenticated = false;
-                $rehash_needed = false;
-
-                // Validate password
-                if (password_verify($password, $row['password'])) {
-                    $authenticated = true;
-                    if (password_needs_rehash($row['password'], PASSWORD_BCRYPT, ['cost' => 12])) {
-                        $rehash_needed = true;
-                    }
-                } else {
-                    // Fallback migration path for legacy plaintext passwords
-                    if (strpos($row['password'], '$2y$') !== 0 && $row['password'] === $password) {
-                        $authenticated = true;
-                        $rehash_needed = true;
-                    }
-                }
-
-                if ($authenticated) {
-                    // If migration/rehash needed
-                    if ($rehash_needed) {
-                        $new_hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-                        $update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE user_Id = ?");
-                        $update_stmt->bind_param("si", $new_hash, $row['user_Id']);
-                        $update_stmt->execute();
-                        $update_stmt->close();
-                    }
-
-                    // Reset rate limits on success
-                    reset_rate_limit($conn, 'login');
-
-                    if ($row['status'] == 'active') {
-                        $_SESSION["email"] = $email;
-                        $_SESSION["user_id"] = $row["user_Id"];
-                        $_SESSION["user_type"] = $row["user_type"];
-                        $_SESSION["fname"] = $row["fname"];
-
-                        if ($row["user_type"] == "user") {
-                            echo "<script>alert('Welcome users, Explore this Real_Travel website..!');</script>";
-                            echo "<script>window.location.href = 'homepage.php';</script>";
-                        } elseif ($row["user_type"] == "admin") {
-                            echo "<script>window.location.href = 'admin/adminhomepage.php';</script>";
-                        }
-                    } else {
-                        echo "<script>alert('Your account is not verified. Please click Verify Email_ID..!');</script>";
-                    }
-                } else {
-                    increment_rate_limit($conn, 'login');
-                    echo "<script>alert('Invalid email or password.');</script>";
-                }
-            } else {
-                increment_rate_limit($conn, 'login');
-                echo "<script>alert('Invalid email or password.');</script>";
-            }
-
-            $stmt->close();
+          echo "<script>alert('Your account is not verified. Please click Verify Email_ID..!');</script>";
         }
+      } elseif ($row["user_type"] == "admin") {
+        if ($row['status'] == 'active') {
+          echo "<script>window.location.href = 'admin/adminhomepage.php';</script>";
+        } else {
+          echo "<script>alert('Your account is not verified. Please click Verify Email_ID..!');</script>";
+        }
+      } else {
+        echo "<script>alert('Invalid Login info..!');</script>";
+      }
+    } else {
+      echo "<script>alert('Invalid email or password.');</script>";
     }
+
+    // Close the prepared statement
+    $stmt->close();
   }
   ?>
   <form action="" method="POST">
     <?php include("config/alert.php"); ?>
-    <?php echo csrf_field(); ?>
     <label for="bravolebrity" class="required">Email</label>
     <input type="email" name="email" placeholder="email" required />
     <label for="activity" class="required">Password</label>
     <input type="password" name="password" placeholder="password" required />
     <button class="button-part1" type="submit" name="Login">Login</button>
-    <button class="button-part1" id="xyz"><a href="auth/password_reset.php">Forget Password</a></button>
-    <button class="button-part1" id="xyz"><a href="auth/resend_otp.php">Verify Email</a></button>
+    <button class="button-part1" id="xyz"><a href="Authentication/password_reset.php">Forget Password</a></button>
+    <button class="button-part1" id="xyz"><a href="Authentication/resend_otp.php">Verify Email</a></button>
   </form>
 </div>
 
+
+
+
+
+
+          <!-- <div class="container"> 
+          <?php
+    //   if(isset($_POST['Login'])) {
+    //     $email = $_POST['email'];
+    //     $password = $_POST['password'];
+
+    //     $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";
+    //     $result = $conn->query($sql);
+    //     $result = mysqli_query($conn, $sql);
+    //     $row = mysqli_fetch_array($result);
+
+    //     if ($row["user_type"] == "user") {
+    //       if ($row['status'] == 'active') {
+    //        echo $_SESSION["email"] = $email;
+    //       // header("Refresh:0.3; url=other/homepage.php");
+    //         echo "<script >alert('Welcome users, Explore this Real_Travel-website..!')</script>";
+    //         header("Refresh:0.3; url=other/homepage.php");
+    //       } else {
+    //         echo "<script>alert('Your account is not verified, Please click Verify Email_ID..!')</script>";
+    //       }
+    //     } else if ($row["user_type"] == "admin") {
+    //       if ($row['status'] == 'active') {
+    //         header('location:admin/adminhomepage.php');
+    //       } else {
+    //         echo "<script>alert('Your account is not verified, Please click Verify Email_Id..!')</script>";
+    //       }
+    //     } else {
+    //       echo "<script>alert('Invalid Login info..!')</script>";
+    //     }
+    //   }
+      ?>
+             <form action="" method="POST">
+                <?php // include("config/alert.php"); ?> 
+              <label for="bravolebrity" class="required">email</label>
+              <input type="email"  name="email"  placeholder="email " required /> 
+              <label for="activity" class="required">password</label>
+              <input  type="password" name="password"  placeholder="password  " required />
+
+              <button class="button-part1" type="submit" name="Login">login</button> 
+      
+              <button class="button-part1"  id="xyz"><a href="Authentication/password_reset.php">forget password</a></button>
+              <button class="button-part1"  id="xyz"><a href="Authentication/resend_otp.php">Verify Email</a></button>
+     
+            </form>
+          </div>  -->
 
 
 
@@ -351,9 +342,8 @@ if (isset($_POST['submit'])) {
       <div class="container"> 
         <form action="" method="post">
           <?php include("config/alert.php"); ?>
-          <?php echo csrf_field(); ?>
-          <input type="hidden" name="otp" value="<?php echo "$otp"; ?>">
-          <input type="hidden" name="activation_code" value="<?php echo "$activation_code"; ?>">
+          <input type="hidden" name="otp" value="<?php echo "$act_str"; ?>">
+                    <input type="hidden" name="activation_code" value="<?php echo "$activation_code"; ?>">
           <label for="bravolebrity" class="required">first name</label>
           <input type="text" name="fname" placeholder="FirstName  " required />
 
@@ -416,12 +406,12 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
             <div class="location">
-                <h1><a href="pages/public/orange-county.php">Orange County</a></h1>
-                <h1><a href="pages/public/new-york.php">new york</a></h1>
-                <h1><a href="pages/public/Atlanta.php">Atlanta</a></h1>
-                <h1><a href="pages/public/new-jersey.php">New Jersey</a></h1>
-                <h1><a href="pages/public/Dallas.php">Dallas</a></h1>
-                <h1><a href="pages/public/salt-lake-city.php">Salt Lake City</a></h1>
+                <h1><a href="before_Login/Orange County.php">Orange County</a></h1>
+                <h1><a href="before_Login/new-york.php">new york</a></h1>
+                <h1><a href="before_Login/Atlanta.php">Atlanta</a></h1>
+                <h1><a href="before_Login/New Jersey.php">New Jersey</a></h1>
+                <h1><a href="before_Login/Dallas.php">Dallas</a></h1>
+                <h1><a href="before_Login/Salt Lake City.php">Salt Lake City</a></h1>
             </div>
         </div>
         <div id="page6">
@@ -513,11 +503,12 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
     <script src="https://unpkg.com/split-type"></script>
-    <!-- <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script> -->
     <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="js/script.js"></script>
     <script>
         let redirect = () => {
             alert('Please Sign In..!')

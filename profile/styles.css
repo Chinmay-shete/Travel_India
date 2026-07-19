@@ -1,0 +1,242 @@
+@font-face {
+    font-family: Aeonik;
+    src: url(../font/66de30cc396af3b5cc39c4b6_Aeonik-Medium.woff2);
+  }
+  @font-face {
+    font-family: pp;
+    src: url(../font/66de30cc730b040270305ffa_PPFragment-SerifRegular.ttf);
+  }
+  *{
+    padding: 0%;
+    margin: 0%;
+    box-sizing: border-box; 
+    font-weight: 400;
+    font-family: Aeonik;
+    color: white;
+  }
+    
+  html,
+  body {
+    height: 100%;
+    overscroll-behavior: none;
+    min-height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: black;
+  }
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  .signUpPage{
+    width: 100%;
+    min-height: 100vh;   
+    background-color: black;
+  }
+  .signUpPage .nav{
+    width: 100%;
+    height: 10vh; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    text-transform: capitalize;
+    padding: 2vw;
+  }
+  .signUpPage .nav h3{
+    font-size: 1.2vw;
+    cursor: pointer;
+  }
+  .signUpPage .nav-part1{
+    display: flex;
+    align-items: center; 
+    gap: 10px;
+  }
+  .signUpPage .nav-part1 h3{
+    text-transform: uppercase;
+    font-family: Aeonik;
+    cursor: pointer;
+  }
+  .signUpPage-part1{
+    width: 100%;
+    position: relative;
+    min-height:90vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2vw;
+  }
+  .signUpPage-part11{
+    width: 50%;
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    position: relative; 
+  }
+  .signUpPage-part11 h3{
+    margin-top: 10vh;
+    font-family: pp;
+    overflow: hidden;
+    opacity: 1;
+    text-transform: uppercase;
+  }
+  .signUpPage-bottom{
+    width: 70%;
+    height: 30vh;
+    text-align: left;
+    align-items: center;
+    position: absolute;
+    bottom: 0%;
+    margin-bottom: 5vh;
+  }
+  .signUpPage-bottom h1{
+    font-weight: 200;
+    font-family: pp;
+    line-height: 1;
+    text-transform: uppercase;
+    font-size: 5vw;
+    opacity: 1;
+  }
+  .signUpPage .container {
+    padding: 2vw;
+    width: 45%;   
+  }
+  .signUpPage label {
+    display: block;
+    text-transform: uppercase; 
+    font-size: 1.2vw;
+    opacity: 1;
+  }
+  .signUpPage .container input,select,textarea {
+    width: 100%;
+    height: 10vh;
+    padding:0.5vw ; 
+    margin-bottom: 2vh;
+    border: none;
+    font-weight: 400;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    outline: none;
+    font-size: 16px;
+    background-color: black;
+    color: white;
+    transition: border-color 0.3s ease;  
+    opacity: 1;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+  }
+  .animated-hr {
+    width: 100%;    
+    border: 1px solid white; 
+  }
+   
+  .container form{
+    opacity: 1; 
+  }
+  .signUpPage .container  input:focus {
+    border-bottom-color: white; 
+  }
+  .required::after {
+    content: "*";
+    color: red;
+    margin-left: 3px;
+  }
+  
+  .signUpPage ::placeholder {
+    color: #aaa; 
+  }
+   
+  .signUpPage .button-part1{
+    width: 100%;
+    margin-top: 2vh;
+    height: 6vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    justify-content: center;
+  }
+  .signUpPage .button-part1{
+    width: 100%;
+    margin-top: 2vh;
+    height: 6vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    justify-content: center;
+  }
+  .signUpPage button{
+    width: 100%;
+    height: 6vh; 
+    background-color: black;
+    margin: 2vh 0;
+    cursor: pointer; 
+    opacity: 1;
+    border: 1px solid white;
+    color: white;
+  } 
+  a{
+      text-decoration: none;
+      color: white;
+  }
+
+  @media (max-width: 600px) {
+    .signUpPage{
+        min-height: 120vh;
+    }
+     
+    .signUpPage .nav {
+      height: 10vh;
+      padding: 0 1.1vh; 
+    }
+    .nav .nav-part2 h3{
+      font-size: 2.5vh;
+    }
+    .nav .nav-part1 h3 {
+      font-size: 2.5vh;
+    }
+    #arrow {
+      height: 2.5vh;
+    }
+    .signUpPage-part1 {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content:start ;
+    }
+    .signUpPage-part1>:first-child{
+      margin-top: 5vh;
+    }
+    
+    .signUpPage-part11 {
+      width: 100%;
+      height: 10vh;
+      text-align: center;
+    }
+    .signUpPage-part1 h3 {
+      font-size: 4.5vh;
+      margin-top: 1vh;
+    }
+    .signUpPage-bottom {
+      display: none;
+     }
+    .signUpPage-part1 .container {
+      width: 90%; 
+    }
+    .signUpPage label {
+      font-size: 2.2vh;
+    }
+    .signUpPage .container input,
+    select,
+    textarea{
+      height: 5vh;
+    }
+    #none{
+      display: none;
+    }
+  }

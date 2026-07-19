@@ -1,0 +1,379 @@
+@font-face {
+  font-family: xyz;
+  src: url(../css/font/Rejouice-Headline.ttf);
+}
+@font-face {
+  font-family: nb;
+  src: url(../css/font/NBInternationalProBoo.ttf);
+}
+
+* {
+  padding: 0%;
+  margin: 0%;
+  box-sizing: border-box;
+  font-family: nb;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+.main {
+  background-color: #efeae3;
+  width: 100%;
+}
+.curser {
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  border-radius: 50%;
+  background-color: #FE330A;
+  position: fixed;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 9;
+}
+.page1 {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  color: #0b0500;
+}
+.page1 img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+   position: absolute;
+  object-fit: cover;
+  background-position: center;
+}
+
+.navbar {
+  width: 100%;
+  height: 10vh;
+  background-color: transparent;
+  position: relative;
+  /* top: 0%; */
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  color: #0b0500;
+  padding: 2.5vw 2vw;
+}
+#logo{
+    font-family: xyz;
+    
+}
+#menu{
+  cursor: pointer;
+
+}
+.navbar h3 {
+  
+  font-size: 1.5vw;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.navbar h3 a{
+  font-size: 1.5vw;
+  text-transform: uppercase;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.heading{
+    text-align: center;
+    /* background-color: red; */
+    justify-content: center;
+    display: flex;
+    margin-top: 27vw;
+    position: relative;
+    font-family: xyz;
+    /* padding-bottom: 3vw; */
+   
+}
+.heading h1{
+    font-size: 13vw;
+    text-transform: uppercase;
+    font-weight: 900;
+    /* opacity: 0; */
+    color: #efeae3;
+   
+    
+    overflow: hidden;
+}
+.heading span{
+    display: inline-block;
+}
+.menu-section{
+  width: 35%;
+  height: 10vh;
+  align-items: center;
+  background-color: transparent;
+  position: absolute;
+  top: -11vh;
+  right: 0%;
+  
+}
+.menu-part1{
+  display: flex;
+  align-items: center;
+  justify-content:space-between;
+  padding: 2vw 4vw;
+}
+.menu-part1 h3{
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 1.5vw;
+}
+
+.bottom-part1 h3 a{
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 1.5vw;
+  text-decoration: none;
+   color:black;
+}
+
+.page2 {
+  width: 100%;
+  height: 100vh;
+  background-color:#efeae3;
+  color: #0b0500;
+  display: flex;
+border-bottom: 1px solid black;
+  justify-content: center;
+  
+  
+}
+.heading-part1 {
+  width: 50%;
+
+  padding: 2vw 3vw;
+  padding-top: 15vw;
+  
+/
+}
+.heading-part1 h3 {
+  font-size: 2vw;
+  font-weight: 400;
+  
+
+}
+h3 span {
+  display: inline-block;
+
+  overflow: hidden;
+}
+.heading-part2 {
+  width: 50%;
+  height: 90vh;
+ 
+
+  padding: 5vw 10vw;
+  
+}
+.heading-part2 img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+ 
+  object-fit: cover;
+  background-position: center;
+}
+.page3 {
+  width: 100%;
+  height: 300vh;
+  display: flex;
+}
+.photos img {
+  padding: 2vw 1vw;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+
+  object-fit: cover;
+  background-position: center;
+}
+.photos {
+  width: 100%;
+  display: flex;
+
+  height: 100vh;
+  padding: 2vw;
+}
+.page4 {
+  width: 100%;
+  height: 100vh;
+}
+
+.move{
+  background-color: red;
+  display: flex;
+  padding: 3vw;
+}
+.marquee h2{
+  font-size: 70px;
+  text-transform: uppercase;
+  /* font-family: gilroy; */
+}
+.marquee{
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 3vw;
+  padding: 0 1.5vw;
+}
+.notes{
+  width: 100;
+  padding: 4vw 4vw;
+}
+.notes h1{
+  font-size: 2.5vw;
+  font-weight: 400;
+}
+.page6{
+  width: 100%;
+  height: 220vh;
+  /* background-color: blue; */
+}
+.pacakge-section{
+  width: 100%;
+  display: flex;
+  height: 80vh;
+padding: 2vw 4vw;
+padding-top: 6vw;
+  /* background-color: red; */
+}
+.package1{
+  width: 50%;
+  height: 50vh;
+  /* background-color: #7D7C79; */
+  padding: 0vw 4vw;
+  /* margin-top: 8vw; */
+  /* border-left: 1px solid black; */
+}
+.package1 h3{
+  font-size: 2vw;
+  text-transform: uppercase;
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 1vw;
+}
+.package1 h5{
+  font-size: 1.5vw;
+  padding-left: 3vw;
+  font-weight: 500;
+}
+.package-features1{
+  background-color:#a9a18e;
+  padding: 2vw 0.5vw;
+  color: #0b0500;
+  border-radius: 4%;
+}
+
+.package2{
+  width: 50%;
+  /* background-color: aqua; */
+  height: 50vh;
+  margin-top: 7vw;
+  padding: 2vw 4vw;
+  /* border-left: 1px solid black; */
+}
+.package2 h3{
+  font-size: 2vw;
+  text-transform: uppercase;
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 1vw;
+}
+.package2 h5{
+  font-size: 1.5vw;
+  padding-left: 3vw;
+  font-weight: 500;
+}
+.package-features2{
+  background-color: #a9a18e;
+  padding: 2vw 0.5vw;
+  color: #0b0500;
+  border-radius: 7%;
+}
+.page7{
+  width: 100%;
+  height: 50vh;
+  background-color: #0E0E0E;
+  color: #edece7;
+  /* background-color: aqua; */
+}
+.bottom-section{
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding: 1vw;
+  justify-content: end;
+}
+.bottom-part1{
+  font-size: 1.2vw;
+ 
+  position: absolute;
+  left: 0%;
+  padding: 2vw;
+}
+.bottom-part1 h2{
+  /* padding: 2vw; */
+  font-weight: 400;
+  padding-bottom: 1vw;
+}
+.bottom-part1 button{
+  background-color: transparent;
+  border: 1px solid white;
+  /* border: none; */
+  cursor: pointer;
+  color: #edece7;
+  border-radius: 10px;
+  font-size: 1.4vw;
+  padding: 0.5vw;
+}
+.bottom-part2{
+  padding: 2vw;
+  font-size: 1.2vw;
+
+  padding-right: 4vw;
+  font-weight: 400;
+}
+.bottom-part3{
+  padding: 2vw;
+  font-size: 1.2vw;
+  font-weight: 100;
+  padding-right: 4vw;
+}
+.bottom-part2 h3{
+  cursor: pointer;
+}
+.bottom-part3 h3{
+  cursor: pointer;
+}
+#bottom-symbol{
+  padding-top: 10vw;
+}
+.page8{
+  width: 100%;
+  height: 60vh;
+  background-color: #0E0E0E;
+  color: #efeae3;
+  text-align: center;
+  justify-content: center;
+}
+.page8 h1{
+  font-size: 100px;
+  /* background-color: red; */
+  overflow: hidden;
+  font-size: 11vw;
+}
+.page8 h1 span{
+  display: inline-block;
+}

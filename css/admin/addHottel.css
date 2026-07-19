@@ -1,0 +1,51 @@
+
+@font-face {
+    font-family: nb;
+    src: url(../font/NBInternationalProBoo.ttf);
+  }
+  * {
+    margin: 0%;
+    padding: 0%;
+    box-sizing: border-box;
+    font-family: nb;
+  }
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+  }
+  .main {
+    width: 100%;
+  }
+  .page1 {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+align-items: center;
+justify-content: center;
+    background-color: #F8F8F8;
+  }
+
+  .form-part1{
+    width: 70%;
+    height: 80%;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+form {
+ width: 100%;
+ height: 100vh;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+}
+form :nth-child(3){
+  display: flex;
+  flex-direction: row;
+  float: right;
+  background-color: red;
+}
+  

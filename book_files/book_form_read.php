@@ -1,0 +1,97 @@
+<?php
+include("../config/connection.php");
+error_reporting(0); 
+if (isset($_GET['passid'])) {
+    $sql = "select * from tour_package where TourPackage_Id = " .  $_GET['passid'];
+    $result = $conn->query($sql);
+    $data = mysqli_fetch_assoc($result);
+    if ($data) {
+    }
+} else {
+    echo "Invalid request..!";
+    exit;
+}
+ 
+$user = $_SESSION["email"]; 
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Form</title>
+    <link rel="stylesheet" href="../css/admin/hotel.css">
+</head>
+ 
+<body>
+    <div class="signUpPage">
+        <div class="nav">
+            <div class="nav-part2">
+
+                <h3 class="closeSignUp" style="align-items: center; justify-content: center; display: flex;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="1.2vw" viewBox="0 0 24 24">
+                        <path fill="white" fill-rule="evenodd" d="M11.708 19.273a.686.686 0 0 0-.05-.966l-6.121-5.55h14.71c.416 0 .753-.338.753-.756a.755.755 0 0 0-.752-.758H5.53l6.129-5.548a.69.69 0 0 0 .05-.969.676.676 0 0 0-.961-.05l-7.522 6.812a.69.69 0 0 0 0 1.017l7.52 6.82c.28.252.71.23.962-.052Z" fill="white"></path>
+                    </svg>
+                    <a href="../Lakshadweep/tourlist.php">to go Back</a></h3>
+                   
+                </div>
+          <div class="nav-part1">
+             <h3>est-2024</h3>
+          </div>
+        </div>
+        <hr class="animated-hr" />
+        <div class="signUpPage-part1"> 
+          <div class="signUpPage-part11">
+            <h3>confirm details</h3>
+            <div class="signUpPage-bottom">
+              <h1>Start <br> Your <br> Journey</h1>
+            </div>
+    
+          </div>
+          <div class="container"> 
+            <form id="booking-form" action="pay_now1.php?passid=<?php echo $data['TourPackage_Id'] ?>" method="post">
+              <label for="activity" class="required">full name</label>
+              <input type="text" id="name" name="name" placeholder="full name" required>
+
+              <label for="activity" class="required">email</label>
+              <input type="email" id="email" name="email" placeholder="Email" required>
+    
+              <label for="activity" class="required">no of Persons</label>
+              <input type="number" name="no_of_person" placeholder="Enter Number of Persons..!">
+               
+              <label for="activity" class="required">phone no</label>
+              <input type="number" id="phone" name="Mobile_No" placeholder="phone-no" required>
+
+              <label for="activity" class="required">date</label>
+              <input type="date" id="date" name="date" required>
+
+              <label for="activity" class="required">package name</label>
+              <input   id="name" name="package_name" placeholder="vaibhav tours" value="<?php echo $data['Package_Name'] ?>" readonly>
+                  
+              <label for="activity" class="required">Price</label>
+              <input   id="number" name="Price" value="<?php echo $data['Price'] ?>" readonly>
+                 
+              <label for="activity" class="required">destination</label>
+              <select class="submitButton2" id="destination" name="destination" required>
+                <option value="">Select your Choise</option>
+                <option value="2 Days, 1 Night">2 Days, 1 Night</option>
+                <option value="4 Days, 3 Night">4 Days, 3 Night</option>
+                <option value="6 Days, 5 Night">6 Days, 5 Night</option>
+            </select>
+
+            
+
+              <label for="activity" class="required">package type</label>
+              <input   id="name" name="Package_Type" placeholder="Couple Package" value="<?php echo $data['Package_Type'] ?>" readonly>
+                  
+              <button class="submitButton" type="submit" class="submit-btn" name="submit">Book Now</button>
+      
+            </form>
+  
+          </div> 
+        </div>
+      </div>
+</body>
+</html>

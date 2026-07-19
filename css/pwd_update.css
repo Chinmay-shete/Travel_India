@@ -1,0 +1,351 @@
+@font-face {
+  font-family: twl;
+  src: url(../font/66bdbff11e188b5245c6ce47_TWKLausanne-400.ttf);
+}
+@font-face {
+  font-family: regular;
+  src: url(../font/66bdbfd4186d4f1e46bc84ab_Tartuffo-Regular.ttf);
+}
+@font-face {
+  font-family: regular2;
+  src: url(../font/66bdbfce81e82ca87a30c297_Tartuffo-Light.ttf);
+}
+@font-face {
+  font-family: aeonik;
+  src: url(../font/66de30cc396af3b5cc39c4b6_Aeonik-Medium.woff2);
+}
+* {
+  padding: 0%;
+  margin: 0%;
+  box-sizing: border-box;
+   
+  color: white;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+ 
+.page1 {
+  width: 100%;
+  min-height: 100vh;
+  background-color: black;
+  color: white;
+}
+.nav {
+  width: 100%;
+  height: 10vh;
+  color: white;
+  background-color: black;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  padding: 2vw 4vw;
+}
+.nav1 {
+  width: 100%;
+  height: 10vh;
+  /* color: white; */
+  margin-top: 10vh;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  padding: 2vw 4vw;
+}
+.nav h3 {
+  font-family: regular;
+  font-size: 1.5vw;
+  font-weight: 400;
+  color: white;
+}
+.nav-part1 {
+  padding: 1vh;
+  /* font-family: twl; */
+  border-left: 0.2vw solid black;
+}
+.nav-part1 h2 {
+  font-weight: 400;
+  font-size: 2.5vw;
+  font-family: regular;
+  text-transform: capitalize;
+  color: white;
+}
+
+.nav h1 {
+  font-family: regular;
+  text-transform: capitalize;
+  font-weight: 400;
+  font-size: 2.5vw;
+  color: white;
+}
+.nav1 h1 {
+  font-family: regular;
+  text-transform: capitalize;
+  font-weight: 400;
+  font-size: 2.5vw;
+  color: white;
+}
+.nav-part2 {
+  gap: 2vw;
+  display: flex;
+  align-items: center;
+  font-family: twl;
+  justify-content: space-between;
+}
+.nav-part2 h3 {
+  font-family: twl;
+  font-size: 1.5vw;
+  font-weight: 400;
+  color: white;
+}
+.nav-part2 a {
+  text-decoration: none;
+  text-transform: capitalize;
+  color: white;
+}
+.middle4 {
+  /* min-height: 100vh; */
+  background-color: black;
+  width: 100%;
+  /* border-bottom: 1px solid rgb(155, 151, 151); */
+  /* padding: 4vw; */
+  padding: 1vw 1vw;
+}
+.booking{
+  background-color: black;
+  width: 100%;
+  height: 35vh;
+  color: white;
+  border-top: 1px solid rgb(155, 151, 151);
+  align-items: center;
+  justify-content: space-around;
+  display: flex;
+  /* padding: 0 1vw; */
+}
+.booking1{
+  width: 50%;
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  height: 100%;
+  justify-content: center; 
+}
+.booking2{
+  width: 50%;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+  display: flex; 
+}
+.book-part11{
+  display: flex; 
+}
+.book-part1{
+  width: 50%;
+  height: 25vh;
+}
+.book-part1 img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-position: center;
+  background-size: cover;
+}
+.book-part2{
+  width: 50%;
+  height: 25vh;
+  /* align-items: center; */
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  /* text-align: left; */
+}
+.book-part2 h2{
+  font-family: regular2;
+  font-weight: 400;
+  font-size: 2.5vw;
+  color: white;
+}
+.book-part2 h4{
+  font-family: twl;
+  font-size: 1.3vw;
+  font-weight: 400;
+  opacity: 0.5;
+  color: white;
+}
+.book-part3{
+  width: 60%;
+  margin-left: 2.5vw;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  height: 25vh;
+}
+.book-part3 h5{
+  font-family: twl;
+  font-size: 1.2vw;
+  font-weight: 200;
+  opacity: 0.5;
+  color: white;
+}
+
+.book-part4 {
+  display: flex;
+  width: 30%;
+  padding: 2vw;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8vw;
+}
+
+.book-part4 button {
+  width: 80%;
+  letter-spacing: 1px;
+  height: 5vh;
+  background-color: black;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 0.5vw;
+  cursor: pointer;
+  border: 1px solid silver;
+  font-weight: 500;
+  font-family: twl;
+  color: white;
+  transition: all ease 0.4s;
+  position: relative;
+  border-radius: 1.5vw;
+  overflow: hidden;
+  
+}
+
+.book-part4 button::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: white;
+  left: 0;
+  bottom: -100%;
+  border-radius: 50%;
+  transition: all ease 0.4s;
+}
+
+.book-part4 button:hover::after {
+  bottom: 0;
+  border-radius: 0;
+}
+
+.book-part4 button a {
+  color: white;
+  text-decoration: none;
+  position: relative;
+  z-index: 9;
+}
+
+.book-part4 button:hover a {
+  color: black;
+}
+     @media (max-width: 600px){
+        .page1{
+          min-height: 100vh;
+        }
+        .nav{
+          height: 10vh;
+          padding: 0 1vh;
+        }
+        .nav h1 {
+          display: none;
+        }
+        .nav-part1 h2 {
+           font-size: 3vh; 
+           letter-spacing: 1px;
+        }
+        .nav-part2 h3{
+          font-size: 2.5vh;
+        }
+        .part1{
+          justify-content: start;
+          align-items: start;
+        }
+        .part1 table{
+          padding: 0;
+        }
+        .part1 th,td,button{
+          padding: 0%;
+          font-size: 1.5vh;
+        }
+        .booking{
+          flex-direction: column;
+          gap: 0;
+          height: 50vh;
+          /* background-color: red; */
+        }
+        .booking1{
+          width: 100%;
+          /* background-color: blue; */
+          justify-content: space-between;
+          /* background-color: red; */
+          gap: 0;
+        }
+       .book-part1{
+        width: 40%;
+        padding: 2vw;
+        height: 25vh;
+       }
+       .book-part1 img{
+        border-radius: 1vw;
+       }
+       .book-part2{
+        width: 60%;
+        height: 25vh;
+        align-items: start;
+        justify-content: start;
+        /* background-color: aqua; */
+        padding: 2vw;
+       }
+       .book-part2 h2{
+        font-size: 4vh;
+        text-transform: capitalize;
+       }
+       .book-part2 h4{
+        font-size: 2.5vh;
+        text-transform: capitalize;
+       }
+        .booking2{
+          width: 100%;
+          display: block;
+          /* background-color: blue; */
+        }
+        .book-part3{
+          /* background-color: blue; */
+          width: 100%;
+          height: 15vh;
+          line-height: 2.5vh;
+          overflow: hidden; 
+          padding: 0 2vw;
+        }
+        .book-part3 h5{
+          font-size: 2vh;
+        }
+        .book-part4{
+          width: 70%;
+          flex-direction: row;
+          gap: 1vh;
+        }
+        .book-part4 button{
+          height: 5vh;
+          width: 80%;
+          letter-spacing: 0.6vw;
+          border-radius: 2.5vh;
+          align-items: center;
+        }
+        .book-part4>button:first-child{
+          background-color: white;
+          color: black;
+        }
+        .book-part4>button:first-child a{
+          color: black;
+        }
+      }

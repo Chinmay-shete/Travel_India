@@ -1,27 +1,23 @@
 <?php
-require_once "../config/user_auth_acces.php";
-include("../config/connection.php");
+   include("../config/connection.php");
+ 
+   error_reporting(0);
 
-// Handle DELETE securely via POST + CSRF
-if (isset($_POST['action']) && $_POST['action'] === 'delete') {
-    $tour_id = (int)($_POST['tour_id'] ?? 0);
-    if ($tour_id > 0) {
-        $stmt = $conn->prepare("DELETE FROM tour_package WHERE TourPackage_Id = ?");
-        $stmt->bind_param("i", $tour_id);
-        if ($stmt->execute()) {
-            echo "<script>alert('Data Deleted Successfully..!'); window.location.href='tourlist.php';</script>";
-            exit;
-        } else {
-            echo "<script>alert('Not Deleted..!');</script>";
-        }
-        $stmt->close();
-    }
-}
+   $sql = "select * from tour_package ";
+   $result = $conn->query($sql);
 
-// Fetch tour packages securely
-$stmt = $conn->prepare("SELECT TourPackage_Id, Package_Name, Package_Location, Package_Features, Package_Image FROM tour_package");
-$stmt->execute();
-$result = $stmt->get_result();
+  if(isset($_GET['ID'])){
+    extract($_GET);
+       $sql = "DELETE FROM tour_package WHERE TourPackage_Id = " . $_GET['ID'];
+       $Result = $conn->query($sql);
+       if($Result){
+        echo  "<script>alert('Data Deleted Successfully..!')</script>";
+         header("Refresh:0.5; url=tourlist.php");
+      }
+      else{
+          echo "Not  Deleted..!";
+      }
+   }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,9 +25,10 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Package List</title>
-    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
-    <link rel="stylesheet" href="../assets/css/pwd_update.css">
+    <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.css" />
+    <link rel="stylesheet" href="../css/pwd_update.css">
     <style>
+      
         .middle4{
          padding-inline: 2vw;
         }
@@ -51,61 +48,47 @@ $result = $stmt->get_result();
         </div>
     </div>
 
-    <?php 
+    
+ <?php 
     if($result->num_rows > 0){
-        while($row = $result->fetch_assoc()){
-            $imgSrc = h($row['Package_Image']);
-            if (strpos($imgSrc, '../uploads/') === 0) {
-                $filename = basename($imgSrc);
-                $imgSrc = "../uploads/serve.php?file=" . urlencode($filename);
-            }
-    ?>
+        while($row = mysqli_fetch_assoc($result)){
+   
+  ?>
     <div class="middle4">
         <div class="booking">
             <div class="booking1">
+
                 <div class="book-part1">
-                    <img src="<?php echo $imgSrc; ?>" alt="img">
+                    <img src="<?php echo $row['Package_Image']; ?>" alt="img">
                 </div>
                 <div class="book-part2">
-                    <h2><?php echo h($row['Package_Name']); ?></h2>
-                    <h4><?php echo h($row['Package_Location']); ?></h4>
+                    <h2><?php echo $row['Package_Name']; ?></h2>
+                    <h4><?php echo $row['Package_Location']; ?></h4>
                 </div>
             </div>
             <div class="booking2">
+
                 <div class="book-part3"> 
-                    <h5><?php echo h($row['Package_Features']); ?>....</h5>
+                    <h5><?php echo $row['Package_Features']; ?>....</h5>
                 </div>
                 <div class="book-part4"> 
-                    <button><a href="update_tour.php?id=<?php echo h($row['TourPackage_Id']); ?>">Update</a></button>
-                    <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this package?');" style="display:inline; width:80%;">
-                        <?php echo csrf_field(); ?>
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="tour_id" value="<?php echo h($row['TourPackage_Id']); ?>">
-                        <input type="submit" value="Delete" style="background:none; border:none; color:white; width:100%; cursor:pointer;">
-                    </form>
+                    <button  ><a href="update_tour.php?id=<?php echo $row['TourPackage_Id'] ?>"  >Update</a> </button>
+                    <button  ><a href="tourlist.php?ID=<?php echo $row['TourPackage_Id'] ?>"   >Delete</a></button>
                 </div>
             </div>
         </div>
     </div>
     <?php
+          }
         }
-    }
-    ?> 
+        ?> 
 </div>
-<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
 <script>
-    const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
+    const locoScroll = new LocomotiveScroll({
+    el: document.querySelector(".page1"),
+    smooth: true,
+  });
 </script>
 </body>
 </html>
-<?php
-$stmt->close();
-?>
