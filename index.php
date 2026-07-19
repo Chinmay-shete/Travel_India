@@ -112,7 +112,7 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
 <body> 
@@ -162,7 +162,7 @@ if (isset($_POST['submit'])) {
                         <h1 class="animate-text signIn" data-index="2">sign in</h1>
                         <h1 class="animate-text signUp" data-index="3">sign up</h1>
                         <h1 class="animate-text" data-index="4">about us</h1>
-                        <h1 class="animate-text" data-index="5"> <a href="Get_in_Touch/contact_index.php"> get in touch</a></h1>
+                        <h1 class="animate-text" data-index="5"> <a href="pages/contact/contact_index.php"> get in touch</a></h1>
                     </div>
 
                     <div class="about">
@@ -308,8 +308,8 @@ if (isset($_POST['submit'])) {
     <label for="activity" class="required">Password</label>
     <input type="password" name="password" placeholder="password" required />
     <button class="button-part1" type="submit" name="Login">Login</button>
-    <button class="button-part1" id="xyz"><a href="Authentication/password_reset.php">Forget Password</a></button>
-    <button class="button-part1" id="xyz"><a href="Authentication/resend_otp.php">Verify Email</a></button>
+    <button class="button-part1" id="xyz"><a href="auth/password_reset.php">Forget Password</a></button>
+    <button class="button-part1" id="xyz"><a href="auth/resend_otp.php">Verify Email</a></button>
   </form>
 </div>
 
@@ -416,12 +416,12 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
             <div class="location">
-                <h1><a href="before_Login/orange-county.php">Orange County</a></h1>
-                <h1><a href="before_Login/new-york.php">new york</a></h1>
-                <h1><a href="before_Login/Atlanta.php">Atlanta</a></h1>
-                <h1><a href="before_Login/new-jersey.php">New Jersey</a></h1>
-                <h1><a href="before_Login/Dallas.php">Dallas</a></h1>
-                <h1><a href="before_Login/salt-lake-city.php">Salt Lake City</a></h1>
+                <h1><a href="pages/public/orange-county.php">Orange County</a></h1>
+                <h1><a href="pages/public/new-york.php">new york</a></h1>
+                <h1><a href="pages/public/Atlanta.php">Atlanta</a></h1>
+                <h1><a href="pages/public/new-jersey.php">New Jersey</a></h1>
+                <h1><a href="pages/public/Dallas.php">Dallas</a></h1>
+                <h1><a href="pages/public/salt-lake-city.php">Salt Lake City</a></h1>
             </div>
         </div>
         <div id="page6">
@@ -517,7 +517,7 @@ if (isset($_POST['submit'])) {
     <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="assets/js/script.js"></script>
     <script>
         let redirect = () => {
             alert('Please Sign In..!')

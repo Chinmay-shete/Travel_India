@@ -10,7 +10,7 @@ include("config/connection.php");
     <title>the real travel</title>
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
      
@@ -53,7 +53,7 @@ include("config/connection.php");
                     <div class="nav-part1">
                         <h5>Curated hotels from <br> The Real Housewives</h5>
                     </div>
-                    <h3 id="account" style="color:chartreuse;"><a href="profile/profile.php"><?php $_SESSION["email"]; ?></a> </h3>
+                    <h3 id="account" style="color:chartreuse;"><a href="pages/profile/profile.php"><?php $_SESSION["email"]; ?></a> </h3>
                     <i class="ri-close-line close"></i>
                 </div>
                
@@ -67,15 +67,16 @@ include("config/connection.php");
                 ?> 
                 <div class="menu-section">
                     <div class="menu">
-                        <h1 class="animate-text" data-index="1"><a href="profile/profile.php?get_Id=<?php echo $row['user_Id'] ?>"> Your Account </a> </h1>
-                        <h1 class="animate-text signIn" data-index="2" id="a"><a href="Lakshadweep/tourlist.php"> Packages</a></h1>
-                        <h1 class="animate-text sign" data-index="3" id="a"><a href="Book_data.php">Booking</a></h1>
+                        <h1 class="animate-text" data-index="0">the real travel</h1>
+                        <h1 class="animate-text" data-index="1"><a href="pages/profile/profile.php?get_Id=<?php echo $row['user_Id'] ?>"> Your Account </a> </h1>
+                        <h1 class="animate-text signIn" data-index="2" id="a"><a href="pages/destinations/lakshadweep/tourlist.php"> Packages</a></h1>
+                        <h1 class="animate-text sign" data-index="3" id="a"><a href="bookings/Book_data.php">Booking</a></h1>
                         <h1 class="animate-text" data-index="4" id="a"><a href="index.php">logout</a></h1>
-                        <h1 class="animate-text" data-index="5"><a href="Get_in_Touch/contact.php">get in touch</a></h1>
+                        <h1 class="animate-text" data-index="5"><a href="pages/contact/contact.php">get in touch</a></h1>
                     </div>
 
 
-                    <!-- <?php
+                    <?php
                            }
                         }
                     ?> -->
@@ -195,6 +196,6 @@ include("config/connection.php");
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
    
-     <script src="js/script.js"></script>
+     <script src="assets/js/script.js"></script>
 </body>
 </html>

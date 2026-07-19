@@ -7,7 +7,7 @@ require_once "../config/user_auth_acces.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>admin</title>    
-    <link rel="stylesheet" href="../css/admin/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin/admin.css">
 </head>
 <body>
     <div class="main">

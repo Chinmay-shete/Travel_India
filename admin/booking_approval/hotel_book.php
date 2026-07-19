@@ -131,7 +131,7 @@ $all_result = $all_stmt->get_result();
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hotel Book Record</title>
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css" />
-  <link rel="stylesheet" href="../../css/pwd_update.css">
+  <link rel="stylesheet" href="../../../assets/css/pwd_update.css">
   <style>
     html,
     body {

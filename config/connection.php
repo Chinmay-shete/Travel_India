@@ -9,8 +9,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Define Base Path & Base URL
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__DIR__));
+}
+
 // Load Composer Autoloader
-$autoloader = dirname(__DIR__) . '/vendor/autoload.php';
+$autoloader = BASE_PATH . '/vendor/autoload.php';
 if (file_exists($autoloader)) {
     require_once $autoloader;
 } else {
