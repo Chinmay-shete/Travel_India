@@ -1,15 +1,5 @@
 <?php
-// Centralized Brevo (Sendinblue) SMTP Email Configuration
-if (file_exists(__DIR__ . '/credentials.php')) {
-    require_once __DIR__ . '/credentials.php';
-}
-
-if (!defined('SMTP_HOST')) define('SMTP_HOST', 'smtp-relay.brevo.com');
-if (!defined('SMTP_PORT')) define('SMTP_PORT', 587);
-if (!defined('SMTP_USER')) define('SMTP_USER', getenv('SMTP_USER') ?: 'ad84f9001@smtp-brevo.com');
-if (!defined('SMTP_PASS')) define('SMTP_PASS', getenv('SMTP_PASS') ?: 'YOUR_BREVO_SMTP_KEY');
-if (!defined('SMTP_FROM_EMAIL')) define('SMTP_FROM_EMAIL', 'chinmayshete4@gmail.com');
-if (!defined('SMTP_FROM_NAME')) define('SMTP_FROM_NAME', 'The Real Travel');
+require_once __DIR__ . '/env.php';
 
 if (!defined('BASE_PATH')) {
     define('BASE_PATH', dirname(__DIR__));
@@ -28,18 +18,14 @@ if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-/**
- * Configure PHPMailer instance with Brevo SMTP credentials
- * 
- * @param PHPMailer $mail
- */
 function configure_smtp_mailer($mail) {
-    $mail->isSMTP();
-    $mail->Host       = SMTP_HOST;
-    $mail->SMTPAuth   = true;
-    $mail->Username   = SMTP_USER;
-    $mail->Password   = SMTP_PASS;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = SMTP_PORT;
-    $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+  $mail->isSMTP();
+  $mail->Host       = env('SMTP_HOST');
+  $mail->SMTPAuth   = true;
+  $mail->Username   = env('SMTP_USER');
+  $mail->Password   = env('SMTP_PASS');
+  $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+  $mail->Port       = (int) env('SMTP_PORT');
+  $mail->setFrom(env('SMTP_FROM'), 'The Real Travel');
 }
+?>

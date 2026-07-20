@@ -1,2 +1,5 @@
-# Local SMTP credentials
-config/credentials.php
+.env
+vendor/
+/uploads/*
+!uploads/.htaccess
+*.log
