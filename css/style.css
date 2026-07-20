@@ -85,7 +85,7 @@ body::-webkit-scrollbar {
   text-transform: capitalize;
   font-family: regular;
   line-height: 1.4; 
-  font-size: 2.5vw;
+  font-size: clamp(24px, 5vw, 72px);
 }
 
 .middle h4 {
@@ -93,7 +93,7 @@ body::-webkit-scrollbar {
   text-transform: capitalize;
   opacity: 0.5;
   line-height: 1.3;
-  font-size: 1.2vw; 
+  font-size: clamp(14px, 1.5vw, 22px); 
   letter-spacing: 0.1vw;
   text-align: center;
 }
@@ -162,7 +162,7 @@ body::-webkit-scrollbar {
 .header h1 {
   text-align: center;
   color: #f3f1f1; 
-  font-size: 15vw; 
+  font-size: clamp(48px, 15vw, 180px); 
   /* text-transform: capitalize; */
   font-family: regular;
 }
@@ -320,7 +320,7 @@ body::-webkit-scrollbar {
   height: 100%;
 }
 .location h1 {
-  font-size: 10vw;
+  font-size: clamp(32px, 10vw, 120px);
   font-family: regular;
   justify-content: center;
   display: flex;
@@ -1054,4 +1054,13 @@ color: #0b0a0e;
   #none{
     display: none;
   }
+}
+
+@media (max-width: 768px) {
+  .page1 { padding-top: 70px; }
+  .backimg { display: none; }
+  .middle { text-align: center; padding: 0 5vw; }
+  #page6 .cards { height: 100vh; }
+  .header button { width: 40%; font-size: 3vw; }
+  .lastPage2 { flex-direction: column; gap: 2vh; }
 }

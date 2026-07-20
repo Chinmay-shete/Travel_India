@@ -89,22 +89,22 @@ if (isset($_GET['get_Id'])) {
         <div class="container"> 
             <form action="" method="post">
               <label for="password" class="required">first name</label>
-              <input type="text" id="first-name" name="first-name" value="<?php echo $users['fname'] ?>" readonly>
+              <input type="text" id="first-name" name="first-name" value="<?php echo htmlspecialchars($users['fname'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
 
               <label for="password" class="required">last name</label>
-              <input type="text" id="last-name" name="last-name" value="<?php echo $users['lname']; ?>" readonly>
+              <input type="text" id="last-name" name="last-name" value="<?php echo htmlspecialchars($users['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
 
               <label for="password" class="required">date of birth</label>
-              <input type="date" id="dob" name="dob" value="<?php echo $users['dob'] ?>" >
+              <input type="date" id="dob" name="dob" value="<?php echo htmlspecialchars($users['dob'] ?? '', ENT_QUOTES, 'UTF-8') ?>" >
 
               <label for="password" class="required">email</label>
-              <input type="email" id="email" name="email" value="<?php echo $users['email'] ?>" readonly>
+              <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($users['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
 
               <label for="password" class="required">phone no</label>
-              <input type="tel" id="phone" name="phone" placeholder="phoneNo" value="<?php echo $users['Mobile_No'] ?>">
+              <input type="tel" id="phone" name="phone" placeholder="phoneNo" value="<?php echo htmlspecialchars($users['Mobile_No'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
               <label for="password" class="required">address</label>
-              <textarea id="address" name="address" rows="3" placeholder="Address"  > <?php echo $users['Address'] ?>  </textarea>
+              <textarea id="address" name="address" rows="3" placeholder="Address"  ><?php echo htmlspecialchars($users['Address'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
               <!-- <input   id="name" name="Package_Type" placeholder="Couple Package" value="" readonly> -->
               <button class="submitButton" type="submit" name="submit">Save Changes</button>
             </form> 

@@ -56,7 +56,7 @@ include("../config/connection.php");
                     <div class="nav-part1">
                         <h5>Curated hotels from <br> The Real Housewives</h5>
                     </div>
-                    <h3 id="account" style="color:chartreuse;"><a href="profile/profile.php"><?php $_SESSION["email"]; ?></a> </h3>
+                    <h3 id="account" style="color:chartreuse;"><a href="profile/profile.php"><?php echo htmlspecialchars($_SESSION["email"] ?? '', ENT_QUOTES, 'UTF-8'); ?></a> </h3>
                     <i class="ri-close-line close"></i>
                 </div>
                
@@ -70,7 +70,7 @@ include("../config/connection.php");
                 ?> 
                 <div class="menu-section">
                     <div class="menu">
-                        <h1 class="animate-text" data-index="1"><a href="../profile/profile.php?get_Id=<?php echo $row['user_Id'] ?>"> Your Account </a> </h1>
+                        <h1 class="animate-text" data-index="1"><a href="../profile/profile.php?get_Id=<?php echo htmlspecialchars($row['user_Id'] ?? '', ENT_QUOTES, 'UTF-8') ?>"> Your Account </a> </h1>
                         <h1 class="animate-text signIn" data-index="2" id="a"><a href="../Lakshadweep/tourlist.php"> Packages</a></h1>
                         <h1 class="animate-text sign" data-index="3" id="a"><a href="Book_data.php">Booking</a></h1>
                         <h1 class="animate-text" data-index="4" id="a"><a href="../index.php">logout</a></h1>
