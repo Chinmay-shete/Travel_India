@@ -15,42 +15,44 @@
 
          if(mysqli_num_rows($result)>0){
             $row = mysqli_fetch_assoc($result);
+            $email = $row['email'];
+            $submitted_otp = $_POST['otp'];
 
-            $row_otp = $row['otp'];
-            $row_signup_time = $row['created_at'] ;
-
-            //Set time
-            $row_signup_time = date('d-m-Y h:i:s', strtotime($row_signup_time));
-            $row_signup_time = date_create($row_signup_time);
-            date_modify($row_signup_time, "+1 minutes");
-            $timeup = date_format($row_signup_time, 'd-m-Y h:i:s');
-
-            if($row_otp !== $otp){
-                echo "<script>alert('Please provide correct OTP..!')</script>";
-            }
-            else{
-                if(date('d-m-Y h:i:s') >= $timeup){
-                    echo "<script>alert('Your time is up.. try again..!')</script>";
-                    header("Refresh:1; url=../index.php");
-                }
-                else{
-                    $stmt2 = $conn->prepare("UPDATE users SET otp = '', status = 'active' WHERE otp = ? AND activation_code = ?");
-                    $stmt2->bind_param("ss", $otp, $activation_code);
-                    $result_update = $stmt2->execute();
-                    $stmt2->close();
-
-                    if($result_update){
-                        echo "<script>alert('Congratulation..! Your account suuccesfully Activated..!')</script>";
-                        header("Refresh:1; url=../index.php");
-                        // Sendemail_Verify();
-                    }else{
-                        echo "<script>alert('Oops..! Your account not Activated..!')</script>";
-
-                    }
-
-                }
+            // 1. Check expiry
+            if (strtotime($row['otp_expires_at']) < time()) {
+                die("OTP has expired. Please request a new one.");
             }
 
+            // 2. Check attempt count
+            if ($row['otp_attempts'] >= 5) {
+                die("Too many attempts. Please request a new OTP.");
+            }
+
+            // 3. Increment attempt counter on wrong OTP
+            if ($submitted_otp !== $row['otp']) {
+                $stmt = $conn->prepare(
+                    "UPDATE users SET otp_attempts = otp_attempts + 1 WHERE email = ?"
+                );
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $stmt->close();
+                die("Incorrect OTP.");
+            }
+
+            // 4. On success — clear OTP so it can't be reused
+            $stmt = $conn->prepare(
+                "UPDATE users SET otp = NULL, otp_expires_at = NULL, otp_attempts = 0, status = '1' WHERE email = ?"
+            );
+            $stmt->bind_param("s", $email);
+            $result_update = $stmt->execute();
+            $stmt->close();
+
+            if($result_update){
+                echo "<script>alert('Congratulation..! Your account suuccesfully Activated..!')</script>";
+                header("Refresh:1; url=../index.php");
+            }else{
+                echo "<script>alert('Oops..! Your account not Activated..!')</script>";
+            }
          }
          else{
             header("location:../index.php");

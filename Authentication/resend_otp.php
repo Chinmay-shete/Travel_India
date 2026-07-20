@@ -56,11 +56,12 @@ if (isset($_POST['submit'])) {
     $verify_email = $_POST['email'];
     $_SESSION['email_verify'] = $verify_email;
 
-    $sql = "UPDATE users SET otp = ?, activation_code = ? WHERE email = ?";
+    $otp_expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+    $sql = "UPDATE users SET otp = ?, activation_code = ?, otp_expires_at = ?, otp_attempts = 0 WHERE email = ?";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
-        $stmt->bind_param("sss", $otp, $activation_code, $verify_email);
+        $stmt->bind_param("ssss", $otp, $activation_code, $otp_expires, $verify_email);
 
         if ($stmt->execute()) {
             Sendemail_Verify($otp, $verify_email);

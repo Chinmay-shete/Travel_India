@@ -76,8 +76,9 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('An account with this Email address already exists.');</script>";
     } else {
         $password = password_hash($raw_password, PASSWORD_BCRYPT);
-        $insert = $conn->prepare("INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address) VALUES (?, ?, ?, ?, ?, ?, ?, '0', '', '', '')");
-        $insert->bind_param("sssssss", $fname, $lname, $email, $password, $user_type, $otp, $activation_code);
+        $otp_expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+        $insert = $conn->prepare("INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address, otp_expires_at, otp_attempts) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NULL, '', '', ?, 0)");
+        $insert->bind_param("ssssssss", $fname, $lname, $email, $password, $user_type, $otp, $activation_code, $otp_expires);
         $qury = $insert->execute();
 
         if ($qury) {
