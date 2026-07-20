@@ -1,4 +1,34 @@
 <?php
+function validateUploadedImage($file) {
+  // 1. Check for upload errors
+  if ($file['error'] !== UPLOAD_ERR_OK) {
+    return ['valid' => false, 'message' => 'Upload error occurred.'];
+  }
+
+  // 2. Whitelist allowed extensions
+  $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+  $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+  if (!in_array($ext, $allowed_extensions)) {
+    return ['valid' => false, 'message' => 'Only JPG, PNG, and WebP files allowed.'];
+  }
+
+  // 3. Validate real MIME type (not just extension)
+  $allowed_mimes = ['image/jpeg', 'image/png', 'image/webp'];
+  $finfo = finfo_open(FILEINFO_MIME_TYPE);
+  $mime = finfo_file($finfo, $file['tmp_name']);
+  finfo_close($finfo);
+  if (!in_array($mime, $allowed_mimes)) {
+    return ['valid' => false, 'message' => 'Invalid file type detected.'];
+  }
+
+  // 4. Check file size (max 2MB)
+  if ($file['size'] > 2 * 1024 * 1024) {
+    return ['valid' => false, 'message' => 'File must be under 2MB.'];
+  }
+
+  return ['valid' => true];
+}
+
 require_once __DIR__ . '/../config/admin_guard.php';
 include("../config/connection.php");
 error_reporting(0);
@@ -11,10 +41,17 @@ if (isset($_POST['submit'])) {
     $PriceOfRoom = $_POST['PriceOfRoom'];
     $amenities = $_POST['amenities'];
 
-    $file = $_FILES['Hotel_Image']['name'];
-    $tempname = $_FILES['Hotel_Image']['tmp_name'];
-    $folder = '../hotel_image/' . $file;
-    move_uploaded_file($tempname, $folder);
+    $validation = validateUploadedImage($_FILES['Hotel_Image']);
+    if (!$validation['valid']) {
+        die($validation['message']);
+    }
+
+    // Only AFTER validation passes:
+    $ext = strtolower(pathinfo($_FILES['Hotel_Image']['name'], PATHINFO_EXTENSION));
+    $new_filename = uniqid('hotel_', true) . '.' . $ext;
+    $folder = '../uploads/' . $new_filename;
+    move_uploaded_file($_FILES['Hotel_Image']['tmp_name'], $folder);
+
     $stmt = $conn->prepare("INSERT INTO create_hotel (Hotel_Name, Hotel_Address, PhoneNo, email, NumberOfRooms, PriceOfRoom, amenities, Hotel_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssidss", $Hotel_Name, $Hotel_Address, $phoneno, $email, $NumberOfRooms, $PriceOfRoom, $amenities, $folder);
     $result = $stmt->execute();

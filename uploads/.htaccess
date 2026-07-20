@@ -1,0 +1,5 @@
+# /uploads/.htaccess
+Options -ExecCGI
+AddHandler cgi-script .php .php3 .php4 .php5 .phtml .pl .py .jsp
+RemoveHandler .php
+php_flag engine off

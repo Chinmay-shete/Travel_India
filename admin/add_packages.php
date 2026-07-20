@@ -1,4 +1,34 @@
-<?php 
+<?php
+function validateUploadedImage($file) {
+  // 1. Check for upload errors
+  if ($file['error'] !== UPLOAD_ERR_OK) {
+    return ['valid' => false, 'message' => 'Upload error occurred.'];
+  }
+
+  // 2. Whitelist allowed extensions
+  $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+  $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+  if (!in_array($ext, $allowed_extensions)) {
+    return ['valid' => false, 'message' => 'Only JPG, PNG, and WebP files allowed.'];
+  }
+
+  // 3. Validate real MIME type (not just extension)
+  $allowed_mimes = ['image/jpeg', 'image/png', 'image/webp'];
+  $finfo = finfo_open(FILEINFO_MIME_TYPE);
+  $mime = finfo_file($finfo, $file['tmp_name']);
+  finfo_close($finfo);
+  if (!in_array($mime, $allowed_mimes)) {
+    return ['valid' => false, 'message' => 'Invalid file type detected.'];
+  }
+
+  // 4. Check file size (max 2MB)
+  if ($file['size'] > 2 * 1024 * 1024) {
+    return ['valid' => false, 'message' => 'File must be under 2MB.'];
+  }
+
+  return ['valid' => true];
+}
+
 require_once __DIR__ . '/../config/admin_guard.php';
 include("../config/connection.php");
 error_reporting(0);
@@ -13,13 +43,17 @@ if(isset($_POST['submit'])) {
     $Package_Details = $_POST['package_details'];
     $phone = $_POST['phone'];
 
-    // File upload handling
-    $file = $_FILES['package-img']['name'];
-        $tempname = $_FILES['package-img']['tmp_name'];
-       // $folder = '../image/'.$file;
-        $folder = '../image/'.$file; 
+    $validation = validateUploadedImage($_FILES['package-img']);
+    if (!$validation['valid']) {
+        die($validation['message']);
+    }
 
-    if(move_uploaded_file($tempname, $folder)) {
+    // Only AFTER validation passes:
+    $ext = strtolower(pathinfo($_FILES['package-img']['name'], PATHINFO_EXTENSION));
+    $new_filename = uniqid('package_', true) . '.' . $ext;
+    $folder = '../uploads/' . $new_filename;
+
+    if(move_uploaded_file($_FILES['package-img']['tmp_name'], $folder)) {
         // Prepare SQL query
         $sql = "INSERT INTO tour_package (Package_Name, Package_Type, Package_Location, Price, Package_Features, Package_Details, Phone, Package_Image) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
