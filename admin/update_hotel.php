@@ -4,9 +4,12 @@ require_once __DIR__ . '/../config/admin_guard.php';
    error_reporting(0);
 
    if(isset($_GET['id'])){
-    $sql = "select * from create_hotel where Hotel_Id = " .  $_GET['id'];
-     $result = $conn->query($sql);
+     $stmt = $conn->prepare("SELECT * FROM create_hotel WHERE Hotel_Id = ?");
+     $stmt->bind_param("i", $_GET['id']);
+     $stmt->execute();
+     $result = $stmt->get_result();
      $data = mysqli_fetch_assoc($result);
+     $stmt->close();
      if($data){
      }
  }
@@ -29,8 +32,10 @@ require_once __DIR__ . '/../config/admin_guard.php';
     $folder = '../hotel_image/'.$file;
     move_uploaded_file($tempname,$folder);
 
-   $sql = "UPDATE create_hotel SET Hotel_Name='$Hotel_Name', Hotel_Address='$Hotel_Address',PhoneNo='$phoneno',email='$email',NumberOfRooms='$NumberOfRooms',PriceOfRoom='$PriceOfRoom',amenities='$amenities',Hotel_Image='$folder' WHERE Hotel_Id = " .  $_GET['id'];
-   $result = $conn->query($sql);
+   $stmt2 = $conn->prepare("UPDATE create_hotel SET Hotel_Name=?, Hotel_Address=?, PhoneNo=?, email=?, NumberOfRooms=?, PriceOfRoom=?, amenities=?, Hotel_Image=? WHERE Hotel_Id = ?");
+   $stmt2->bind_param("ssssidssi", $Hotel_Name, $Hotel_Address, $phoneno, $email, $NumberOfRooms, $PriceOfRoom, $amenities, $folder, $_GET['id']);
+   $result = $stmt2->execute();
+   $stmt2->close();
    if($result){
     echo  "<script>alert('Data updated Successfully..!')</script>";
        header("Refresh:0.5; url=hotellist.php");

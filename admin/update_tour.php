@@ -4,9 +4,12 @@ include("../config/connection.php");
 error_reporting(0);
 
 if(isset($_GET['id'])){
-    $sql = "select * from tour_package where TourPackage_Id = " .  $_GET['id'];
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT * FROM tour_package WHERE TourPackage_Id = ?");
+    $stmt->bind_param("i", $_GET['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $data = mysqli_fetch_assoc($result);
+    $stmt->close();
     if(!$data){
         echo "Invalid request..!";
         exit;
@@ -26,8 +29,10 @@ if(isset($_POST['submit'])){
     $folder = '../image/'.$file;
     move_uploaded_file($tempname, $folder);
 
-    $sql ="UPDATE tour_package SET Package_Name='$Package_Name', Package_Type='$Package_Type', Package_Location='$Package_Location', Price='$Package_Price', Package_Features='$Package_Features', Package_Details='$Package_Details', Phone = '$phone' ,Package_Image='$folder' WHERE TourPackage_Id = " .  $_GET['id'];
-    $result = $conn->query($sql);
+    $stmt2 = $conn->prepare("UPDATE tour_package SET Package_Name=?, Package_Type=?, Package_Location=?, Price=?, Package_Features=?, Package_Details=?, Phone=?, Package_Image=? WHERE TourPackage_Id = ?");
+    $stmt2->bind_param("ssssssssi", $Package_Name, $Package_Type, $Package_Location, $Package_Price, $Package_Features, $Package_Details, $phone, $folder, $_GET['id']);
+    $result = $stmt2->execute();
+    $stmt2->close();
 
     if($result){
         echo "<script>alert('Data updated Successfully..!')</script>";

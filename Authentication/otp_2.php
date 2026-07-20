@@ -7,8 +7,11 @@
          $activation_code = $_GET['code'];
          $otp = $_POST['otp'];
 
-         $sql = "SELECT * FROM users WHERE activation_code ='".$activation_code."'";
-         $result = mysqli_query($conn, $sql);
+         $stmt = $conn->prepare("SELECT * FROM users WHERE activation_code = ?");
+         $stmt->bind_param("s", $activation_code);
+         $stmt->execute();
+         $result = $stmt->get_result();
+         $stmt->close();
 
          if(mysqli_num_rows($result)>0){
             $row = mysqli_fetch_assoc($result);
@@ -27,8 +30,10 @@
             }
             else{
                 
-                    $sqlupdate = "UPDATE users SET otp = '', status = 'active' WHERE otp = '".$otp."' AND activation_code = '".$activation_code."'";
-                    $result_update = mysqli_query($conn, $sqlupdate);
+                    $stmt2 = $conn->prepare("UPDATE users SET otp = '', status = 'active' WHERE otp = ? AND activation_code = ?");
+                    $stmt2->bind_param("ss", $otp, $activation_code);
+                    $result_update = $stmt2->execute();
+                    $stmt2->close();
 
                     if($result_update){
                         echo "<script>alert('Congratulation..! Your account suuccesfully Activated..!')</script>";

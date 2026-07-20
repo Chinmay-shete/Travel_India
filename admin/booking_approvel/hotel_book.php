@@ -379,8 +379,10 @@ function Sendemail_hotel_approvel($email, $fname ,$Mobile_No, $Hotel_Date, $Hote
       $id = $_POST['id'];
       $fname = $_POST['fname'];
       $email = $_POST['email'];
-      $select = "UPDATE hotel_booking SET status = 'Approved' WHERE id = '$id' ";
-      $result = mysqli_query($conn, $select);
+      $stmt = $conn->prepare("UPDATE hotel_booking SET status = 'Approved' WHERE id = ?");
+      $stmt->bind_param("i", $id);
+      $result = $stmt->execute();
+      $stmt->close();
       Sendemail_hotel_approvel($email, $fname ,$Mobile_No, $Hotel_Date, $Hotel_Name, $Total_room, $Payment_Id, $Total_Price);
       if ($result) {
         echo "<script>alert('Your Package Approved Succesfully..!')</script>";
@@ -393,8 +395,10 @@ function Sendemail_hotel_approvel($email, $fname ,$Mobile_No, $Hotel_Date, $Hote
 
     if (isset($_POST['delete'])) {
       $id = $_POST['id'];
-      $select = "DELETE FROM hotel_booking WHERE id = '$id' ";
-      $resut = mysqli_query($conn, $select);
+      $stmt2 = $conn->prepare("DELETE FROM hotel_booking WHERE id = ?");
+      $stmt2->bind_param("i", $id);
+      $resut = $stmt2->execute();
+      $stmt2->close();
       if ($result) {
         echo "<script>alert('Your Package Deleted Succesfully..!')</script>";
         header("Refresh:0.5s; url=../adminhomepage.php");

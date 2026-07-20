@@ -8,9 +8,10 @@ require_once __DIR__ . '/../config/admin_guard.php';
    $result = $conn->query($sql);
 
   if(isset($_GET['ID'])){
-    extract($_GET);
-       $sql = "DELETE FROM tour_package WHERE TourPackage_Id = " . $_GET['ID'];
-       $Result = $conn->query($sql);
+       $stmt = $conn->prepare("DELETE FROM tour_package WHERE TourPackage_Id = ?");
+       $stmt->bind_param("i", $_GET['ID']);
+       $Result = $stmt->execute();
+       $stmt->close();
        if($Result){
         echo  "<script>alert('Data Deleted Successfully..!')</script>";
          header("Refresh:0.5; url=tourlist.php");

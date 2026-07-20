@@ -7,8 +7,10 @@ $sql = "select * from users";
 $result = $conn->query($sql);
 
 if (isset($_GET['ID'])) {
-    $sql = "DELETE FROM users WHERE user_Id = " . $_GET['ID'];
-    $Result = $conn->query($sql);
+    $stmt = $conn->prepare("DELETE FROM users WHERE user_Id = ?");
+    $stmt->bind_param("i", $_GET['ID']);
+    $Result = $stmt->execute();
+    $stmt->close();
     if ($Result) {
         echo "<script>alert('Data Deleted Successfully..!')</script>";
         header("location:user_data.php");

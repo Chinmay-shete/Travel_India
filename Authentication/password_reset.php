@@ -37,17 +37,22 @@ function send_password_reset($get_email, $token){
 }
 
 if(isset($_POST['send_link'])){
-    $email = mysqli_escape_string($conn, $_POST['email']);
+    $email = $_POST['email'];
     $token = md5(rand());
 
-    $check_email = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
-    $result = mysqli_query($conn, $check_email);
+    $stmt = $conn->prepare("SELECT email FROM users WHERE email = ? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
     if(mysqli_num_rows($result) > 0){
         $row = mysqli_fetch_array($result);
         $get_email = $row['email'];
 
-        $update_token = "UPDATE users SET activation_code = '$token' WHERE email = '$get_email' LIMIT 1";
-        $update_token_run = mysqli_query($conn, $update_token);
+        $stmt2 = $conn->prepare("UPDATE users SET activation_code = ? WHERE email = ? LIMIT 1");
+        $stmt2->bind_param("ss", $token, $get_email);
+        $update_token_run = $stmt2->execute();
+        $stmt2->close();
 
         if($update_token_run){
             send_password_reset($get_email, $token);
@@ -70,7 +75,10 @@ if(isset($_POST['update_password'])){
     $cpwd = $_REQUEST['cpassword'];
 
     if($pwd == $cpwd){
-        $reset_pwd = mysqli_query($conn, "UPDATE users SET password ='$pwd' WHERE email = '$email'");
+        $stmt3 = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+        $stmt3->bind_param("ss", $pwd, $email);
+        $reset_pwd = $stmt3->execute();
+        $stmt3->close();
 
         if($reset_pwd > 0){
             echo "<script>alert('New Password Successfully Updated..!')</script>";  

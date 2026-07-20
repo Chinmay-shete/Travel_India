@@ -7,8 +7,10 @@ $sql = "SELECT * FROM feedback";
 $result = $conn->query($sql);
 
 if (isset($_GET['IDe'])) {
-    $sql = "DELETE FROM feedback WHERE msg_Id = " . $_GET['IDe'];
-    $Result = $conn->query($sql);
+    $stmt = $conn->prepare("DELETE FROM feedback WHERE msg_Id = ?");
+    $stmt->bind_param("i", $_GET['IDe']);
+    $Result = $stmt->execute();
+    $stmt->close();
     if ($Result) {
         header("location:feedbackdata.php");
     } else {

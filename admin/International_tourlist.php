@@ -5,9 +5,10 @@ require_once __DIR__ . '/../config/admin_guard.php';
    $sql = "select * from create_intern_package ";
    $result = $conn->query($sql);
   if(isset($_GET['ID'])){
-    extract($_GET);
-       $sql = "DELETE FROM create_intern_package WHERE CIPackage_Id = " . $_GET['ID'];
-       $Result = $conn->query($sql);
+       $stmt = $conn->prepare("DELETE FROM create_intern_package WHERE CIPackage_Id = ?");
+       $stmt->bind_param("i", $_GET['ID']);
+       $Result = $stmt->execute();
+       $stmt->close();
        if($Result){
         echo  "<script>alert('Data Deleted Successfully..!')</script>";
          header("Refresh:0.5; url=International_tourlist.php");

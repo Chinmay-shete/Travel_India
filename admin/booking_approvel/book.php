@@ -354,8 +354,10 @@ function Sendemail_approvel($email, $fname, $Mobile_No, $Package_Date, $Package_
 			$id = $_POST['id'];
 			$fname = $_POST['fname'];
 			$email = $_POST['email'];
-			$select = "UPDATE booking SET status = 'Approved' WHERE id = '$id' ";
-			$result = mysqli_query($conn, $select);
+			$stmt = $conn->prepare("UPDATE booking SET status = 'Approved' WHERE id = ?");
+			$stmt->bind_param("i", $id);
+			$result = $stmt->execute();
+			$stmt->close();
 
 
 			if ($result) {
@@ -370,8 +372,10 @@ function Sendemail_approvel($email, $fname, $Mobile_No, $Package_Date, $Package_
 
 		if (isset($_POST['delete'])) {
 			$id = $_POST['id'];
-			$select = "DELETE FROM booking WHERE id = '$id' ";
-			$result = mysqli_query($conn, $select);
+			$stmt2 = $conn->prepare("DELETE FROM booking WHERE id = ?");
+			$stmt2->bind_param("i", $id);
+			$result = $stmt2->execute();
+			$stmt2->close();
 
 			if ($result) {
 				echo "<script>alert('Your Package Deleted Succesfully..!')</script>";

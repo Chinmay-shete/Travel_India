@@ -13,10 +13,10 @@ include('connection.php');
     $email = $_POST['email'];
     $massage = $_POST['massage'];
  
-    $sql = "insert into feedback (name, email, massage) 
-    values('$name','$email','$massage')";
-
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("INSERT INTO feedback (name, email, massage) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $name, $email, $massage);
+    $result = $stmt->execute();
+    $stmt->close();
  
     if($result){
        
