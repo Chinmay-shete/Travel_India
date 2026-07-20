@@ -1,4 +1,6 @@
- 
+<?php
+require_once __DIR__ . '/../config/admin_guard.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

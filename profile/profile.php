@@ -119,31 +119,36 @@ if (isset($_GET['get_Id'])) {
           <?php
           $sql = "select * from users";
           $result = $conn->query($sql);
-          $user = $_SESSION["email"];
-          if (isset($_POST['password'])) {
-              $current_pwd = $_POST['current_password'];
-              $pwd = $_POST['new_password'];
-              $cpwd = $_POST['confirm_password'];
+          $user = $_SESSION["email"] ?? '';
+          if (isset($_POST['password']) && !empty($user)) {
+              $current_pwd = $_POST['current_password'] ?? '';
+              $pwd = $_POST['new_password'] ?? '';
+              $cpwd = $_POST['confirm_password'] ?? '';
 
-              $sql = "select password from users where email='$user'";
-              $res = mysqli_query($conn, $sql);
-              $row = mysqli_fetch_assoc($res);
-              if ($current_pwd == $row['password']) {
-                  if ($cpwd == '') {
+              $stmt = $conn->prepare("SELECT password FROM users WHERE email = ?");
+              $stmt->bind_param("s", $user);
+              $stmt->execute();
+              $res = $stmt->get_result();
+              $row = $res->fetch_assoc();
 
+              if ($row && (password_verify($current_pwd, $row['password']) || $current_pwd === $row['password'])) {
+                  if (empty($cpwd)) {
                       echo "<script>alert('Please enter the confirm password..!')</script>";
                   } else if ($pwd != $cpwd) {
-
-                      echo "<script>alert('passwords do not match..!')</script>";
-                  } else if ($pwd == $cpwd) {
-                      $update = mysqli_query($conn, "update users set password = '$pwd' where email = '$user'");
-                      if ($update) {
-                          echo "<script>alert('Password changed Succesfully..!')</script>";
+                      echo "<script>alert('Passwords do not match..!')</script>";
+                  } else {
+                      $new_hashed_pwd = password_hash($pwd, PASSWORD_BCRYPT);
+                      $update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+                      $update_stmt->bind_param("ss", $new_hashed_pwd, $user);
+                      if ($update_stmt->execute()) {
+                          echo "<script>alert('Password changed successfully..!')</script>";
                       }
+                      $update_stmt->close();
                   }
               } else {
-                  echo "<script>alert('Correct Password does not match..!')</script>";
+                  echo "<script>alert('Current password is incorrect..!')</script>";
               }
+              $stmt->close();
           }
           ?>
 

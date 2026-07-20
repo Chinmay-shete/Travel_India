@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
     $fname = trim($_POST['fname'] ?? '');
     $lname = trim($_POST['lname'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $raw_password = $_POST['password'] ?? '';
     $user_type = $_POST['user_type'] ?? 'user';
 
     $_SESSION["fname"] = $fname;
@@ -75,6 +75,7 @@ if (isset($_POST['submit'])) {
     if ($result->num_rows > 0) {
         echo "<script>alert('An account with this Email address already exists.');</script>";
     } else {
+        $password = password_hash($raw_password, PASSWORD_BCRYPT);
         $insert = $conn->prepare("INSERT INTO users (fname, lname, email, password, user_type, otp, activation_code, status, dob, Mobile_No, Address) VALUES (?, ?, ?, ?, ?, ?, ?, '0', '', '', '')");
         $insert->bind_param("sssssss", $fname, $lname, $email, $password, $user_type, $otp, $activation_code);
         $qury = $insert->execute();
@@ -218,40 +219,45 @@ if (isset($_POST['submit'])) {
   include("config/connection.php"); // Update with the correct path
 
   if (isset($_POST['Login'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
-    $stmt->bind_param("ss", $email, $password);
+    // Use prepared statements to fetch user by email only
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
       $row = $result->fetch_assoc();
 
-      if ($row["user_type"] == "user") {
-        if ($row['status'] == 'active') {
-          $_SESSION["email"] = $email;
-          echo "<script>alert('Welcome users, Explore this Real_Travel website..!');</script>";
-          echo "<script>window.location.href = 'other/homepage.php';</script>";
+      if (password_verify($password, $row['password']) || $password === $row['password']) {
+        if ($row["user_type"] == "user") {
+          if ($row['status'] == '1' || $row['status'] == 'active') {
+            $_SESSION["email"] = $email;
+            echo "<script>alert('Welcome user, Explore The Real Travel website!');</script>";
+            echo "<script>window.location.href = 'homepage.php';</script>";
+          } else {
+            echo "<script>alert('Your account is not verified. Please click Verify Email ID.');</script>";
+          }
+        } elseif ($row["user_type"] == "admin") {
+          if ($row['status'] == '1' || $row['status'] == 'active') {
+            $_SESSION["email"] = $email;
+            $_SESSION["user_type"] = "admin";
+            echo "<script>window.location.href = 'admin/adminhomepage.php';</script>";
+          } else {
+            echo "<script>alert('Your account is not verified. Please click Verify Email ID.');</script>";
+          }
         } else {
-          echo "<script>alert('Your account is not verified. Please click Verify Email_ID..!');</script>";
-        }
-      } elseif ($row["user_type"] == "admin") {
-        if ($row['status'] == 'active') {
-          echo "<script>window.location.href = 'admin/adminhomepage.php';</script>";
-        } else {
-          echo "<script>alert('Your account is not verified. Please click Verify Email_ID..!');</script>";
+          echo "<script>alert('Invalid Login info.');</script>";
         }
       } else {
-        echo "<script>alert('Invalid Login info..!');</script>";
+        echo "<script>alert('Invalid email or password.');</script>";
       }
     } else {
       echo "<script>alert('Invalid email or password.');</script>";
     }
 
-    // Close the prepared statement
     $stmt->close();
   }
   ?>

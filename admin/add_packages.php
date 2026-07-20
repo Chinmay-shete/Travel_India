@@ -1,4 +1,5 @@
 <?php 
+require_once __DIR__ . '/../config/admin_guard.php';
 include("../config/connection.php");
 error_reporting(0);
 

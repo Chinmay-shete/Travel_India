@@ -5,19 +5,23 @@ include("../config/connection.php");
 
 
  
- $City_Id = $_GET['cityId'];
+$City_Id = (int)($_GET['cityId'] ?? 0);
 
-$sql = "select * from city where City_Id = $City_Id";
-$result = $conn->query($sql);
-
-$row = mysqli_fetch_assoc($result);
-$City_Name = $row['City_Name'];
- $City_Name;
+$stmt = $conn->prepare("SELECT * FROM city WHERE City_Id = ?");
+$stmt->bind_param("i", $City_Id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$City_Name = $row['City_Name'] ?? '';
+$stmt->close();
 
 
 //fetch row wise data
-$queryfordata = mysqli_query($conn, "select * from create_intern_package where City ='$City_Name'");
- $rowdata = mysqli_fetch_array($queryfordata);
+$stmt2 = $conn->prepare("SELECT * FROM create_intern_package WHERE City = ?");
+$stmt2->bind_param("s", $City_Name);
+$stmt2->execute();
+$queryfordata = $stmt2->get_result();
+$rowdata = $queryfordata->fetch_assoc();
 
 
 ?>

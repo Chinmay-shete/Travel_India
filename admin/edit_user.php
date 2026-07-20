@@ -1,11 +1,16 @@
 <?php
+require_once __DIR__ . '/../config/admin_guard.php';
 include("../config/connection.php");
 error_reporting(0);
 
 if (isset($_GET['id'])) {
-  $sql = "select * from users where user_Id = " . $_GET['id'];
-  $result = $conn->query($sql);
-  $users = mysqli_fetch_assoc($result);
+  $user_id = (int)$_GET['id'];
+  $stmt = $conn->prepare("SELECT * FROM users WHERE user_Id = ?");
+  $stmt->bind_param("i", $user_id);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $users = $result->fetch_assoc();
+  $stmt->close();
   if (!$users) {
     echo "Invalid request..!";
     exit;
@@ -13,12 +18,15 @@ if (isset($_GET['id'])) {
 }
 
 if (isset($_POST['submit'])) {
-  $fname = $_POST['fname'];
-  $lname = $_POST['lname'];
-  $email = $_POST['email'];
+  $fname = $_POST['fname'] ?? '';
+  $lname = $_POST['lname'] ?? '';
+  $email = $_POST['email'] ?? '';
+  $user_id = (int)($_GET['id'] ?? 0);
 
-  $sql = "UPDATE users SET fname='$fname', lname='$lname', email='$email' where user_Id = " . $_GET['id'];
-  $result = $conn->query($sql);
+  $stmt = $conn->prepare("UPDATE users SET fname=?, lname=?, email=? WHERE user_Id = ?");
+  $stmt->bind_param("sssi", $fname, $lname, $email, $user_id);
+  $result = $stmt->execute();
+  $stmt->close();
 
   if ($result) {
     echo "<script>alert('Data Updated Successfully..!')</script>";

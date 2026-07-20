@@ -1,10 +1,14 @@
 <?php
    include("../config/connection.php");
 
-   if (isset($_GET['Intern_Id'])) {
-    $sql = "select * from create_intern_package where CIPackage_Id = " .  $_GET['Intern_Id'];
-    $result = $conn->query($sql);
-    $data = mysqli_fetch_assoc($result);
+    if (isset($_GET['Intern_Id'])) {
+     $intern_id = (int)$_GET['Intern_Id'];
+     $stmt = $conn->prepare("SELECT * FROM create_intern_package WHERE CIPackage_Id = ?");
+     $stmt->bind_param("i", $intern_id);
+     $stmt->execute();
+     $result = $stmt->get_result();
+     $data = $result->fetch_assoc();
+     $stmt->close();
     if ($data) {
     }
 } else {

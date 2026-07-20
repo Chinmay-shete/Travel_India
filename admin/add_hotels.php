@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../config/admin_guard.php';
 include("../config/connection.php");
 error_reporting(0);
 if (isset($_POST['submit'])) {
@@ -15,9 +15,9 @@ if (isset($_POST['submit'])) {
     $tempname = $_FILES['Hotel_Image']['tmp_name'];
     $folder = '../hotel_image/' . $file;
     move_uploaded_file($tempname, $folder);
-    $sql = " insert into create_hotel( Hotel_Name, Hotel_Address, PhoneNo, email, NumberOfRooms, PriceOfRoom, amenities, Hotel_Image)
-         values ('$Hotel_Name','$Hotel_Address','$phoneno','$email','$NumberOfRooms','$PriceOfRoom','$amenities',' $folder')";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("INSERT INTO create_hotel (Hotel_Name, Hotel_Address, PhoneNo, email, NumberOfRooms, PriceOfRoom, amenities, Hotel_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssidss", $Hotel_Name, $Hotel_Address, $phoneno, $email, $NumberOfRooms, $PriceOfRoom, $amenities, $folder);
+    $result = $stmt->execute();
 
     if ($result) {
         echo "<script>alert('New Hotel Info Add succesfully..!')</script>";
@@ -25,6 +25,7 @@ if (isset($_POST['submit'])) {
     } else {
         echo "Invalid Query..!";
     }
+    $stmt->close();
 }
 
 

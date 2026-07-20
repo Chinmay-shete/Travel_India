@@ -3,20 +3,23 @@ include("../config/connection.php");
 
 
 if(isset($_POST['update_password'])){
-    $email = $_REQUEST['email'];
-    $pwd = $_REQUEST['new_password'];
-    $cpwd = $_REQUEST['cpassword'];
+    $email = trim($_REQUEST['email'] ?? '');
+    $pwd = $_REQUEST['new_password'] ?? '';
+    $cpwd = $_REQUEST['cpassword'] ?? '';
 
-    if($pwd == $cpwd){
-        $reset_pwd = mysqli_query($conn, "UPDATE users SET password ='$pwd' WHERE email = '$email'");
+    if(!empty($pwd) && $pwd === $cpwd){
+        $new_password = password_hash($pwd, PASSWORD_BCRYPT);
+        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+        $stmt->bind_param("ss", $new_password, $email);
+        $reset_pwd = $stmt->execute();
 
-        if($reset_pwd > 0){
-            echo "<script>alert('New Password Successfully Updated..!')</script>";  
-            header("Refresh:1; url=../index.php");
+        if($reset_pwd){
+            echo "<script>alert('New Password Successfully Updated..!'); window.location.href='../index.php';</script>";  
         }
         else {
             echo "<script>alert('Password Not Updated..!')</script>"; 
         }
+        $stmt->close();
     }
     else {
         echo "<script>alert('Password and Confirm Password does not match..!')</script>";
