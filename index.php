@@ -1,4 +1,5 @@
 <?php
+ob_start();
 include("config/connection.php");
 require_once("config/email_config.php");
 error_reporting(0);
@@ -32,12 +33,10 @@ function Sendemail_Verify($fname, $email, $otp)
                 <p>Enter this verification code on the website to activate your account.</p>
             </div>";
 
-        $res = $mail->send();
-        if (!$res) {
-            echo "<script>alert('Your verification email could not be sent.');</script>";
-        }
+        return $mail->send();
     } catch (Exception $e) {
         error_log("Brevo Mailer Error: " . $mail->ErrorInfo);
+        return false;
     }
 }
 
@@ -63,17 +62,37 @@ if (isset($_POST['submit'])) {
     $email = trim($_POST['email'] ?? '');
     $raw_password = $_POST['password'] ?? '';
     $user_type = $_POST['user_type'] ?? 'user';
+    if (empty($user_type)) {
+        $user_type = 'user';
+    }
 
     $_SESSION["fname"] = $fname;
     $_SESSION["email"] = $email;
 
-    $stmt = $conn->prepare("SELECT user_Id FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT user_Id, status FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $redirect_url = "Authentication/otp_verify.php?code=" . urlencode($activation_code);
+
     if ($result->num_rows > 0) {
-        echo "<script>alert('An account with this Email address already exists.');</script>";
+        $row = $result->fetch_assoc();
+        if ($row['status'] == 1 || $row['status'] === 'active' || $row['status'] === '1') {
+            echo "<script>alert('An account with this Email address already exists. Please log in.');</script>";
+        } else {
+            // User account exists but is unverified (status 0). Re-send fresh OTP & update activation code.
+            $password = password_hash($raw_password, PASSWORD_BCRYPT);
+            $otp_expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+            $update = $conn->prepare("UPDATE users SET fname = ?, lname = ?, password = ?, user_type = ?, otp = ?, activation_code = ?, otp_expires_at = ?, otp_attempts = 0 WHERE email = ?");
+            $update->bind_param("ssssssss", $fname, $lname, $password, $user_type, $otp, $activation_code, $otp_expires, $email);
+            $update->execute();
+
+            Sendemail_Verify($fname, $email, $otp);
+            header("Location: " . $redirect_url);
+            echo "<script>window.location.href = '" . $redirect_url . "';</script>";
+            exit();
+        }
     } else {
         $password = password_hash($raw_password, PASSWORD_BCRYPT);
         $otp_expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
@@ -83,10 +102,8 @@ if (isset($_POST['submit'])) {
 
         if ($qury) {
             Sendemail_Verify($fname, $email, $otp);
-            echo "<script>
-                alert('Registration successful! Please check your email for the verification OTP code.');
-                window.location.href = 'Authentication/otp_verify.php?code=" . urlencode($activation_code) . "';
-            </script>";
+            header("Location: " . $redirect_url);
+            echo "<script>window.location.href = '" . $redirect_url . "';</script>";
             exit();
         } else {
             echo "<script>alert('Registration failed. Please try again.');</script>";
@@ -379,8 +396,7 @@ if (isset($_POST['submit'])) {
           <!-- User Type Selection -->
     <label for="user_type" class="required">User Type</label>
     <select name="user_type" id="user_type" required>
-        <option value="">-- Select User Type --</option>
-        <option value="user">User</option>
+        <option value="user" selected>User</option>
         <option value="admin">Admin</option>
     </select>
   
